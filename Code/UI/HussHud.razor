@@ -9,13 +9,14 @@
 	@if (Player.IsValid())
 	{
 		<div class="role @RoleClass">
-			<div class="role-name">@(Player.IsChaser ? "CHASER" : "RUNNER")</div>
-			<div class="role-hint">@RoleHint</div>
+			<div class="role-name">@(Player.IsChaser ? "CAPTAIN CLARK" : "CLARK")</div>
 		</div>
 		<div class="pips">
 			@for (int i = 0; i < Player.HitsToKill; i++)
 			{
-				<div class="pip @(i < Player.HitsRemaining ? "full" : "gone")"></div>
+				<div class="pip @(i < Player.HitsRemaining ? "full" : "gone")">
+					<i class="heart">❤</i>
+				</div>
 			}
 		</div>
 		@if (Player.IsRunner)
@@ -47,7 +48,7 @@
 			<span><b>SHIFT</b> sprint</span>
 			<span><b>RMB</b> turn with camera</span>
 			<span><b>ALT</b> shift lock</span>
-			<span><b>T</b> @(Player.IsChaser ? "become runner" : "become chaser")</span>
+			<span><b>T</b> @(Player.IsChaser ? "become clark" : "become captain clark")</span>
 		</div>
 	}
 
@@ -57,7 +58,7 @@
 {
 	HussPlayer Player => HussPlayer.Local;
 
-	string RoleClass => Player.IsValid() && Player.IsChaser ? "chaser" : "runner";
+	string RoleClass => Player.IsValid() && Player.IsChaser ? "clark" : "captain clark";
 
 	string StaminaClass
 	{
@@ -71,10 +72,6 @@
 			return "";
 		}
 	}
-
-	string RoleHint => Player.IsValid() && Player.IsChaser
-		? "Get close. It swings on its own."
-		: "Outrun them. Safe rooms lock chasers out.";
 
 	bool ShiftLocked => Player.IsValid() && Player.Camera.IsValid() && Player.Camera.ShiftLock;
 
