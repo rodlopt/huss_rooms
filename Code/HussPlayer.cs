@@ -79,6 +79,11 @@ public sealed class HussPlayer : Component, Component.INetworkSpawn
 	[Sync( SyncFlags.FromHost ), Change( nameof( OnTeamChanged ) )]
 	public HussTeam Team { get; set; } = HussTeam.Runner;
 
+	[Property, Group( "Team" )]
+	public float TeamSwitchCooldown { get; set; } = 1.0f;
+
+	TimeSince _timeSinceTeamSwitch;
+
 	public bool IsChaser => Team == HussTeam.Chaser;
 	public bool IsRunner => Team == HussTeam.Runner;
 
@@ -226,10 +231,11 @@ public sealed class HussPlayer : Component, Component.INetworkSpawn
 		if ( Network.Owner != Rpc.Caller ) return;
 		if ( IsDowned ) return;
 
+		if ( _timeSinceTeamSwitch < TeamSwitchCooldown ) return;
+
 		Team = team;
 
-		// Switching sides clears whatever damage you'd taken as a runner.
-		Hits = 0;
+		_timeSinceTeamSwitch = 0;
 	}
 
 	void OnTeamChanged( HussTeam before, HussTeam after )
@@ -306,8 +312,8 @@ public sealed class HussPlayer : Component, Component.INetworkSpawn
 		if ( IsChaser )
 		{
 			IsSprinting = false;
-			Stamina = MaxStamina;
-			IsExhausted = false;
+			// Do not forcibly reset stamina or exhaustion when switching to chaser; preserve
+			// current stamina so team switches don't heal or refill the player.
 			return;
 		}
 
