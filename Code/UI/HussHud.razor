@@ -6,41 +6,40 @@
 
 <root class="@(Player.IsValid() ? "" : "hidden")">
 
-	@if ( Player.IsValid() )
+	@if (Player.IsValid())
 	{
 		<div class="role @RoleClass">
 			<div class="role-name">@(Player.IsChaser ? "CHASER" : "RUNNER")</div>
 			<div class="role-hint">@RoleHint</div>
 		</div>
-
-		@if ( Player.IsRunner )
+		<div class="pips">
+			@for (int i = 0; i < Player.HitsToKill; i++)
+			{
+				<div class="pip @(i < Player.HitsRemaining ? "full" : "gone")"></div>
+			}
+		</div>
+		@if (Player.IsRunner)
 		{
-			<div class="pips">
-				@for ( int i = 0; i < Player.HitsToKill; i++ )
-				{
-					<div class="pip @(i < Player.HitsRemaining ? "full" : "gone")"></div>
-				}
+			<div class="stamina @StaminaClass">
+				<div class="label">STAMINA</div>
+				<div class="track">
+					<div class="fill" style="width: @(Player.StaminaFraction * 100)%;"></div>
+				</div>
 			</div>
 		}
 
-		<div class="stamina @StaminaClass">
-			<div class="label">STAMINA</div>
-			<div class="track">
-				<div class="fill" style="width: @(Player.StaminaFraction * 100)%;"></div>
-			</div>
-		</div>
 
-		@if ( Player.IsSafe )
+		@if (Player.IsSafe)
 		{
 			<div class="banner safe">SAFE ROOM</div>
 		}
 
-		@if ( Player.IsDowned )
+		@if (Player.IsDowned)
 		{
 			<div class="banner downed">DOWNED &mdash; GETTING BACK UP</div>
 		}
 
-		@if ( ShiftLocked )
+		@if (ShiftLocked)
 		{
 			<div class="shiftlock">SHIFT LOCK</div>
 		}
@@ -65,10 +64,10 @@
 	{
 		get
 		{
-			if ( !Player.IsValid() ) return "";
-			if ( Player.IsChaser ) return "unused";
-			if ( Player.IsExhausted ) return "spent";
-			if ( Player.IsSprinting ) return "burning";
+			if (!Player.IsValid()) return "";
+			if (Player.IsChaser) return "unused";
+			if (Player.IsExhausted) return "spent";
+			if (Player.IsSprinting) return "burning";
 
 			return "";
 		}
@@ -91,5 +90,5 @@
 		(int)((Player?.StaminaFraction ?? 0) * 50),
 		Player?.IsSafe,
 		Player?.IsDowned,
-		System.HashCode.Combine( Player?.IsSprinting, Player?.IsExhausted, ShiftLocked ) );
+		System.HashCode.Combine(Player?.IsSprinting, Player?.IsExhausted, ShiftLocked));
 }
