@@ -50,10 +50,10 @@
         "EnablePressing": true,
         "EyeDistanceFromTop": 8,
         "FootstepMixer": {
-          "Name": "master",
-          "Id": "193d299d-f8b3-4e1b-9ff6-4a9680094ea1"
+          "Name": "game",
+          "Id": "810039ef-f5b9-44bd-b1da-40e842e65b46"
         },
-        "FootstepVolume": 1,
+        "FootstepVolume": 10,
         "HideBodyInFirstPerson": true,
         "JumpSpeed": 350,
         "LookSensitivity": 1,
