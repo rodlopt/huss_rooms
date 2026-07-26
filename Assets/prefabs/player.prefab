@@ -75,7 +75,7 @@
         "RotationAngleLimit": 45,
         "RotationSpeed": 1,
         "RunByDefault": false,
-        "RunSpeed": 320,
+        "RunSpeed": 360,
         "ShowColliderComponents": false,
         "ShowRigidbodyComponent": false,
         "ThirdPerson": true,
@@ -202,7 +202,8 @@
         "SprintScale": 1.45,
         "StaminaDrain": 26,
         "StaminaRegen": 16,
-        "StaminaRegenDelay": 0.9
+        "StaminaRegenDelay": 0.9,
+        "TeamSwitchCooldown": 1
       },
       {
         "__type": "Hussrooms.ChaserAttack",
@@ -461,7 +462,6 @@
             "Flags": 0,
             "ChaserColor": "1,1,1,1",
             "FallbackName": "Player",
-            "MaxDistance": 1600,
             "OnComponentDestroy": null,
             "OnComponentDisabled": null,
             "OnComponentEnabled": null,
