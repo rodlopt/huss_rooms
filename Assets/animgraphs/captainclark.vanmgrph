@@ -15,7 +15,7 @@
 				{
 					_class = "CStateMachineAnimNode"
 					m_sName = "Unnamed"
-					m_vecPosition = [ 320.0, 0.0 ]
+					m_vecPosition = [ 336.0, -32.0 ]
 					m_nNodeID = 
 					{
 						m_id = 223097179
@@ -111,7 +111,7 @@
 							{
 								m_nodeID = 
 								{
-									m_id = 941587683
+									m_id = 636660430
 								}
 								m_outputID = 
 								{
@@ -259,6 +259,118 @@
 			{
 				key = 
 				{
+					m_id = 636660430
+				}
+				value = 
+				{
+					_class = "CBlendAnimNode"
+					m_sName = "Unnamed"
+					m_vecPosition = [ 80.0, -192.0 ]
+					m_nNodeID = 
+					{
+						m_id = 636660430
+					}
+					m_sNote = ""
+					m_children = 
+					[
+						{
+							m_inputConnection = 
+							{
+								m_nodeID = 
+								{
+									m_id = 749237721
+								}
+								m_outputID = 
+								{
+									m_id = 4294967295
+								}
+							}
+							m_name = ""
+							m_blendValue = 0.0
+						},
+						{
+							m_inputConnection = 
+							{
+								m_nodeID = 
+								{
+									m_id = 680920618
+								}
+								m_outputID = 
+								{
+									m_id = 4294967295
+								}
+							}
+							m_name = ""
+							m_blendValue = 1.0
+						},
+					]
+					m_blendValueSource = "Parameter"
+					m_param = 
+					{
+						m_id = 77258987
+					}
+					m_blendKeyType = "BlendKey_UserValue"
+					m_bLockBlendOnReset = false
+					m_bSyncCycles = false
+					m_bLoop = true
+					m_bLockWhenWaning = true
+					m_damping = 
+					{
+						_class = "CAnimInputDamping"
+						m_speedFunction = "NoDamping"
+						m_fSpeedScale = 1.0
+						m_fMinSpeed = 10.0
+						m_fMaxTension = 1000.0
+						m_fTension = 100.0
+						m_fDamping = 5.0
+					}
+				}
+			},
+			{
+				key = 
+				{
+					m_id = 680920618
+				}
+				value = 
+				{
+					_class = "CSequenceAnimNode"
+					m_sName = "Unnamed"
+					m_vecPosition = [ -176.0, -144.0 ]
+					m_nNodeID = 
+					{
+						m_id = 680920618
+					}
+					m_sNote = ""
+					m_tagSpans = [  ]
+					m_sequenceName = "Running_CaptainClark"
+					m_playbackSpeed = 1.0
+					m_bLoop = true
+				}
+			},
+			{
+				key = 
+				{
+					m_id = 749237721
+				}
+				value = 
+				{
+					_class = "CSequenceAnimNode"
+					m_sName = "Unnamed"
+					m_vecPosition = [ -192.0, -192.0 ]
+					m_nNodeID = 
+					{
+						m_id = 749237721
+					}
+					m_sNote = ""
+					m_tagSpans = [  ]
+					m_sequenceName = "Neutral_Idle_CaptainClark"
+					m_playbackSpeed = 1.0
+					m_bLoop = true
+				}
+			},
+			{
+				key = 
+				{
 					m_id = 787577906
 				}
 				value = 
@@ -273,7 +385,7 @@
 					m_sNote = ""
 					m_tagSpans = [  ]
 					m_sequenceName = "Standing_Melee_Attack_Downward_CaptainClark"
-					m_playbackSpeed = 1.0
+					m_playbackSpeed = 2.0
 					m_bLoop = false
 				}
 			},
@@ -286,7 +398,7 @@
 				{
 					_class = "CBlend2DAnimNode"
 					m_sName = "Unnamed"
-					m_vecPosition = [ 32.0, -32.0 ]
+					m_vecPosition = [ -112.0, -32.0 ]
 					m_nNodeID = 
 					{
 						m_id = 941587683
@@ -310,7 +422,7 @@
 					m_blendSourceX = "Parameter"
 					m_paramX = 
 					{
-						m_id = 4294967295
+						m_id = 77258987
 					}
 					m_blendSourceY = "Parameter"
 					m_paramY = 
