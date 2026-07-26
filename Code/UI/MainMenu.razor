@@ -25,7 +25,6 @@
 
 		<div class="footer">
 			<span>@PlayerCount in the lobby</span>
-			<span>Press <b>Q</b> to come back here</span>
 		</div>
 
 	</div>
@@ -54,9 +53,6 @@
 			player.RequestTeam( _pendingTeam.Value );
 			_pendingTeam = null;
 		}
-
-		if ( !IsOpen && Input.Pressed( "Menu" ) )
-			SetOpen( true );
 
 		// The menu is the only thing that should be reading input while it's up.
 		if ( player.IsValid() )
