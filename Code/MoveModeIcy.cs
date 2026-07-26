@@ -91,6 +91,7 @@ public sealed class MoveModeIcy : MoveModeWalk
 	public float TopSpeed => MaxSpeed * SpeedScale;
 
 	HussPlayer _player;
+	float _renderRoll;
 
 	protected override void OnAwake()
 	{
@@ -179,6 +180,10 @@ public sealed class MoveModeIcy : MoveModeWalk
 	/// point of the orbit camera is that you can look one way and run another, so the body
 	/// follows the direction you're steering instead.
 	///
+			// The key is what turns you, not a heading the body chases on its own. Let go
+			// half way round and it stays half way round - no finishing the turn while you're
+			// standing still or sliding. Tapping forward nudges you towards forward; holding
+			// it is what actually gets you there.
 	/// <see cref="HussPlayer.FaceCamera"/> flips it back to camera-facing for right mouse,
 	/// shift lock and first person. It's synced, so remote players turn the same way.
 	/// </summary>
@@ -204,16 +209,39 @@ public sealed class MoveModeIcy : MoveModeWalk
 			// half way round and it stays half way round - no finishing the turn while you're
 			// standing still or sliding. Tapping forward nudges you towards forward; holding
 			// it is what actually gets you there.
-			if ( heading.Length <= 1.0f ) return;
-
-			target = Rotation.LookAt( heading.Normal, Vector3.Up );
-			rate = TurnSpeed;
+			if ( heading.Length <= 1.0f )
+			{
+				// No steering input: keep current facing so we can still lerp roll back to zero.
+				target = renderer.WorldRotation;
+				rate = TurnSpeed;
+			}
+			else
+			{
+				target = Rotation.LookAt( heading.Normal, Vector3.Up );
+				rate = TurnSpeed;
+			}
 		}
 
 		// Turn at a constant angular rate rather than an exponential ease, so a 180 takes a
 		// predictable amount of time instead of crawling the last few degrees.
 		var remaining = renderer.WorldRotation.Distance( target );
 		var frac = remaining <= 0.01f ? 1.0f : (rate * Time.Delta / remaining).Clamp( 0, 1 );
+
+		// Rock the body about its forward axis while the player is asking for movement.
+		// Oscillate between -15 and 15 degrees and smoothly lerp the applied roll.
+		var wishFlat = Controller.WishVelocity.WithZ( 0 );
+		var moveSpeed = wishFlat.Length;
+		float rollTarget = 0f;
+		if ( moveSpeed > 0.5f )
+		{
+			const float freq = 12.0f; // oscillations per second
+			const float amp = 15.0f; // degrees
+			rollTarget = MathF.Sin( Time.Now * freq ) * amp;
+		}
+		_renderRoll = _renderRoll.LerpTo( rollTarget, (5f * Time.Delta).Clamp( 0, 1 ) );
+
+		var targAngles = target.Angles() with { roll = _renderRoll };
+		target = targAngles;
 
 		renderer.WorldRotation = Rotation.Slerp( renderer.WorldRotation, target, frac );
 	}
