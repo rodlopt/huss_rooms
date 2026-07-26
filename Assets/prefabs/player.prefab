@@ -55,7 +55,7 @@
         },
         "FootstepVolume": 10,
         "HideBodyInFirstPerson": true,
-        "JumpSpeed": 350,
+        "JumpSpeed": 260,
         "LookSensitivity": 1,
         "OnComponentDestroy": null,
         "OnComponentDisabled": null,
