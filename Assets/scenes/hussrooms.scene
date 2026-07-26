@@ -1744,7 +1744,7 @@
               "ColliderFlags": 0,
               "Elasticity": null,
               "Friction": null,
-              "IsTrigger": false,
+              "IsTrigger": true,
               "OnComponentDestroy": null,
               "OnComponentDisabled": null,
               "OnComponentEnabled": null,
