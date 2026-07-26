@@ -189,11 +189,6 @@ public sealed class HussPlayer : Component
 		// Only the player that owns this pawn gets to change its team.
 		if ( Network.Owner != Rpc.Caller ) return;
 		if ( IsDowned ) return;
-		if ( Team == team ) return;
-
-		// A chaser can't get back out through the barrier, so don't let anyone turn into one
-		// while they're standing in a safe room.
-		if ( team == HussTeam.Chaser && IsSafe ) return;
 
 		Team = team;
 
@@ -318,7 +313,7 @@ public sealed class HussPlayer : Component
 	public bool TakeHit( HussPlayer attacker )
 	{
 		if ( !Networking.IsHost ) return false;
-		if ( IsDowned || IsSafe || IsChaser ) return false;
+		if ( IsDowned || IsSafe ) return false;
 
 		Hits++;
 
