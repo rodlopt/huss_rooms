@@ -203,6 +203,13 @@
         "StaminaDrain": 26,
         "StaminaRegen": 16,
         "StaminaRegenDelay": 0.9,
+        "Taunts": [
+          "sounds/architect.sound",
+          "sounds/clarkbite.sound",
+          "sounds/itsjustwired.sound",
+          "sounds/shitfurniture.sound",
+          "sounds/stayincharacter.sound"
+        ],
         "TeamSwitchCooldown": 1
       },
       {
