@@ -1,5 +1,6 @@
 @using Sandbox;
 @using Sandbox.UI;
+@using Sandbox.UI.Construct;
 @using Hussrooms;
 @namespace Hussrooms.UI
 @inherits PanelComponent
@@ -45,10 +46,50 @@
 		}
 
 		<div class="keys">
-			<span><b>SHIFT</b> sprint</span>
-			<span><b>RMB</b> turn with camera</span>
-			<span><b>ALT</b> shift lock</span>
-			<span><b>T</b> @(Player.IsChaser ? "become clark" : "become captain clark")</span>
+			<span>
+				@if (SprintGlyph is not null)
+				{
+					<img src="@SprintGlyph" class="glyph" />
+				}
+				else
+				{
+					<b>SHIFT</b>
+				}
+				<span class="key-label"> sprint</span>
+			</span>
+			<span>
+				@if (RotateGlyph is not null)
+				{
+					<img src="@RotateGlyph" class="glyph" />
+				}
+				else
+				{
+					<b>RMB</b>
+				}
+				<span class="key-label"> turn with camera</span>
+			</span>
+			<span>
+				@if (ShiftLockGlyph is not null)
+				{
+					<img src="@ShiftLockGlyph" class="glyph" />
+				}
+				else
+				{
+					<b>ALT</b>
+				}
+				<span class="key-label"> shift lock</span>
+			</span>
+			<span>
+				@if (TransformGlyph is not null)
+				{
+					<img src="@TransformGlyph" class="glyph" />
+				}
+				else
+				{
+					<b>T</b>
+				}
+				<span class="key-label"> @(Player.IsChaser ? "become clark" : "become captain clark")</span>
+			</span>
 		</div>
 	}
 
@@ -87,4 +128,13 @@
 		Player?.IsSafe,
 		Player?.IsDowned,
 		System.HashCode.Combine(Player?.IsSprinting, Player?.IsExhausted, ShiftLocked));
+
+	string SprintGlyph => Input.GetGlyph( "Run", InputGlyphSize.Small, true ).ResourcePath ?? "";
+	string RotateGlyph => Player.IsValid() && Player.Camera.IsValid()
+		? Input.GetGlyph( Player.Camera.RotateBodyButton ?? "Attack2", InputGlyphSize.Small, true ).ResourcePath ?? ""
+		: "";
+	string ShiftLockGlyph => Player.IsValid() && Player.Camera.IsValid()
+		? Input.GetGlyph( Player.Camera.ShiftLockButton ?? "ShiftLock", InputGlyphSize.Small, true ).ResourcePath ?? ""
+		: "";
+	string TransformGlyph => Input.GetGlyph( "Transform", InputGlyphSize.Small, true ).ResourcePath ?? "";
 }
