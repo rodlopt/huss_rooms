@@ -9,7 +9,7 @@ namespace Hussrooms;
 /// entirely by their own input.
 /// </summary>
 [Icon( "directions_run" ), Group( "Hussrooms" ), Title( "Huss Player" )]
-public sealed class HussPlayer : Component
+public sealed class HussPlayer : Component, Component.INetworkSpawn
 {
 	[RequireComponent] public PlayerController Controller { get; set; }
 
@@ -37,6 +37,39 @@ public sealed class HussPlayer : Component
 		}
 	}
 	static HussPlayer _local;
+
+	// ----------------------------------------------------------------- identity
+
+	/// <summary>
+	/// Who this player is, for <see cref="Nametag"/> and anything else that needs to name them.
+	///
+	/// Filled in by the host from the owning connection rather than by the owner, so every
+	/// machine gets the same answer and nobody can name themselves whatever they like.
+	/// </summary>
+	[Sync( SyncFlags.FromHost )] public string DisplayName { get; set; }
+
+	/// <summary>
+	/// Runs on every machine as the pawn spawns, and hands us the connection it belongs to.
+	/// </summary>
+	void Component.INetworkSpawn.OnNetworkSpawn( Connection owner )
+	{
+		if ( Networking.IsHost )
+			DisplayName = owner?.DisplayName;
+	}
+
+	/// <summary>
+	/// Catches the cases OnNetworkSpawn doesn't: a pawn that was never network spawned
+	/// (running the scene with no lobby), or one whose owner arrived late.
+	/// </summary>
+	void UpdateDisplayName()
+	{
+		if ( !string.IsNullOrWhiteSpace( DisplayName ) ) return;
+
+		var owner = Network.Owner ?? Connection.Local;
+		if ( owner is null ) return;
+
+		DisplayName = owner.DisplayName;
+	}
 
 	// ------------------------------------------------------------------ team
 
@@ -170,7 +203,10 @@ public sealed class HussPlayer : Component
 	protected override void OnFixedUpdate()
 	{
 		if ( Networking.IsHost )
+		{
+			UpdateDisplayName();
 			UpdateRespawn();
+		}
 
 		if ( IsProxy ) return;
 
