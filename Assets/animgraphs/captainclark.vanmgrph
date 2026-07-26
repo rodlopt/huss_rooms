@@ -265,7 +265,7 @@
 				{
 					_class = "CBlendAnimNode"
 					m_sName = "Unnamed"
-					m_vecPosition = [ 80.0, -192.0 ]
+					m_vecPosition = [ 96.0, -144.0 ]
 					m_nNodeID = 
 					{
 						m_id = 636660430
@@ -335,7 +335,7 @@
 				{
 					_class = "CSequenceAnimNode"
 					m_sName = "Unnamed"
-					m_vecPosition = [ -176.0, -144.0 ]
+					m_vecPosition = [ -160.0, -96.0 ]
 					m_nNodeID = 
 					{
 						m_id = 680920618
@@ -356,7 +356,7 @@
 				{
 					_class = "CSequenceAnimNode"
 					m_sName = "Unnamed"
-					m_vecPosition = [ -192.0, -192.0 ]
+					m_vecPosition = [ -176.0, -144.0 ]
 					m_nNodeID = 
 					{
 						m_id = 749237721

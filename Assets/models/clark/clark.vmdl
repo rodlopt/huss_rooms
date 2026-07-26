@@ -100,6 +100,39 @@
 								root_bone_name = ""
 								motion_type = "Single"
 							},
+							{
+								_class = "AnimEvent"
+								event_class = "AE_FOOTSTEP"
+								event_frame = 0
+								event_keys = 
+								{
+									Attachment = ""
+									Foot = "1"
+									Volume = 1.0
+								}
+							},
+							{
+								_class = "AnimEvent"
+								event_class = "AE_FOOTSTEP"
+								event_frame = 37
+								event_keys = 
+								{
+									Attachment = ""
+									Foot = "0"
+									Volume = 1.0
+								}
+							},
+							{
+								_class = "AnimEvent"
+								event_class = "AE_FOOTSTEP"
+								event_frame = 47
+								event_keys = 
+								{
+									Attachment = ""
+									Foot = "1"
+									Volume = 1.0
+								}
+							},
 						]
 						activity_name = ""
 						activity_weight = 1
@@ -136,6 +169,39 @@
 								quadratic = false
 								root_bone_name = ""
 								motion_type = "Single"
+							},
+							{
+								_class = "AnimEvent"
+								event_class = "AE_FOOTSTEP"
+								event_frame = 0
+								event_keys = 
+								{
+									Attachment = ""
+									Foot = "1"
+									Volume = 1.0
+								}
+							},
+							{
+								_class = "AnimEvent"
+								event_class = "AE_FOOTSTEP"
+								event_frame = 13
+								event_keys = 
+								{
+									Attachment = ""
+									Foot = "0"
+									Volume = 1.0
+								}
+							},
+							{
+								_class = "AnimEvent"
+								event_class = "AE_FOOTSTEP"
+								event_frame = 31
+								event_keys = 
+								{
+									Attachment = ""
+									Foot = "1"
+									Volume = 1.0
+								}
 							},
 						]
 						activity_name = ""
