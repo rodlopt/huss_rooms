@@ -1,0 +1,460 @@
+namespace Hussrooms;
+
+/// <summary>
+/// Everything that makes a player a runner or a chaser: which side they're on, their
+/// stamina, how many hits they've taken, and the key that flips them between the two.
+///
+/// The team is host authoritative so nobody can put themselves on a side the host
+/// didn't agree to. Stamina is owned by the player it belongs to, since it's driven
+/// entirely by their own input.
+/// </summary>
+[Icon( "directions_run" ), Group( "Hussrooms" ), Title( "Huss Player" )]
+public sealed class HussPlayer : Component
+{
+	[RequireComponent] public PlayerController Controller { get; set; }
+
+	MoveModeIcy _move;
+	ChaserAttack _attack;
+
+	/// <summary>
+	/// Our view. Only meaningful on the machine that owns this player.
+	/// </summary>
+	public HussCamera Camera { get; private set; }
+
+	/// <summary>
+	/// The player this machine is controlling, if there is one.
+	/// </summary>
+	public static HussPlayer Local
+	{
+		get
+		{
+			if ( _local.IsValid() && !_local.IsProxy ) return _local;
+
+			_local = Game.ActiveScene?.GetAllComponents<HussPlayer>()
+				.FirstOrDefault( x => !x.IsProxy );
+
+			return _local;
+		}
+	}
+	static HussPlayer _local;
+
+	// ------------------------------------------------------------------ team
+
+	/// <summary>
+	/// Which side we're on. Set through <see cref="RequestTeam"/> so the host stays in charge.
+	/// </summary>
+	[Sync( SyncFlags.FromHost ), Change( nameof( OnTeamChanged ) )]
+	public HussTeam Team { get; set; } = HussTeam.Runner;
+
+	public bool IsChaser => Team == HussTeam.Chaser;
+	public bool IsRunner => Team == HussTeam.Runner;
+
+	[Property, Group( "Runner" )] public float RunnerBaseSpeed { get; set; } = 230.0f;
+	[Property, Group( "Runner" )] public float RunnerMaxSpeed { get; set; } = 340.0f;
+
+	[Property, Group( "Chaser" )] public float ChaserBaseSpeed { get; set; } = 260.0f;
+	[Property, Group( "Chaser" )] public float ChaserMaxSpeed { get; set; } = 410.0f;
+
+	/// <summary>
+	/// True while the body should be pinned to the camera instead of facing its own movement.
+	/// Written by <see cref="HussCamera"/> on the owner; synced so remote players turn the
+	/// same way we see ourselves turn.
+	/// </summary>
+	[Sync] public bool FaceCamera { get; set; }
+
+	[Property, Group( "Looks" )] public Model RunnerModel { get; set; }
+	[Property, Group( "Looks" )] public AnimationGraph RunnerAnimGraph { get; set; }
+	[Property, Group( "Looks" )] public Model ChaserModel { get; set; }
+	[Property, Group( "Looks" )] public AnimationGraph ChaserAnimGraph { get; set; }
+
+	// --------------------------------------------------------------- stamina
+
+	[Property, Group( "Stamina" )] public float MaxStamina { get; set; } = 100.0f;
+
+	/// <summary>Stamina spent per second while sprinting.</summary>
+	[Property, Group( "Stamina" )] public float StaminaDrain { get; set; } = 26.0f;
+
+	/// <summary>Stamina recovered per second while not sprinting.</summary>
+	[Property, Group( "Stamina" )] public float StaminaRegen { get; set; } = 16.0f;
+
+	/// <summary>How long after sprinting before stamina starts coming back.</summary>
+	[Property, Group( "Stamina" )] public float StaminaRegenDelay { get; set; } = 0.9f;
+
+	/// <summary>Speed multiplier while sprinting. Runners sprint faster than a chaser can move.</summary>
+	[Property, Group( "Stamina" )] public float SprintScale { get; set; } = 1.45f;
+
+	/// <summary>Once you bottom out, this much stamina has to come back before you can sprint again.</summary>
+	[Property, Group( "Stamina" )] public float ExhaustedRecovery { get; set; } = 30.0f;
+
+	[Sync] public float Stamina { get; set; } = 100.0f;
+	[Sync] public bool IsSprinting { get; set; }
+
+	/// <summary>True once stamina hits zero, until it climbs back over <see cref="ExhaustedRecovery"/>.</summary>
+	public bool IsExhausted { get; private set; }
+
+	public float StaminaFraction => MaxStamina <= 0 ? 0 : (Stamina / MaxStamina).Clamp( 0, 1 );
+
+	TimeSince _timeSinceSprint;
+
+	// ---------------------------------------------------------------- health
+
+	[Property, Group( "Health" )] public int HitsToKill { get; set; } = 3;
+	[Property, Group( "Health" )] public float RespawnDelay { get; set; } = 3.0f;
+
+	/// <summary>How much random tumble to give the ragdoll when it drops.</summary>
+	[Property, Group( "Health" )] public float RagdollSpin { get; set; } = 220.0f;
+
+	GameObject _ragdoll;
+
+	[Sync( SyncFlags.FromHost )] public int Hits { get; set; }
+	[Sync( SyncFlags.FromHost ), Change( nameof( OnDownedChanged ) )] public bool IsDowned { get; set; }
+
+	/// <summary>Hits left before this runner goes down.</summary>
+	public int HitsRemaining => Math.Max( 0, HitsToKill - Hits );
+
+	TimeUntil _respawnAt;
+
+	// ------------------------------------------------------------- safe room
+
+	/// <summary>
+	/// How many <see cref="SafeZone"/> volumes we're currently standing in. Counted on the host.
+	/// </summary>
+	int _safeZones;
+
+	/// <summary>
+	/// True while inside a safe room. Chasers can't land a hit on us here.
+	/// </summary>
+	[Sync( SyncFlags.FromHost )] public bool IsSafe { get; set; }
+
+	// ------------------------------------------------------------------ life
+
+	protected override void OnAwake()
+	{
+		// includeDisabled, because ChaserAttack ships disabled - we're the thing that turns
+		// it on - and because nothing is Active yet this early.
+		_move = GetComponent<MoveModeIcy>( true );
+		_attack = GetComponent<ChaserAttack>( true );
+		Camera = GetComponent<HussCamera>( true );
+	}
+
+	protected override void OnStart()
+	{
+		if ( !IsProxy )
+			Stamina = MaxStamina;
+
+		ApplyTeam();
+	}
+
+	/// <summary>
+	/// Set by the main menu while it's up. Kept separate from <see cref="IsDowned"/> so the
+	/// two can't clobber each other's idea of whether the controls should be live.
+	/// </summary>
+	public bool InputLocked { get; set; }
+
+	protected override void OnUpdate()
+	{
+		if ( IsProxy ) return;
+
+		// Recomputed every frame from both reasons we'd take the controls away, so it can't
+		// get stuck on if they overlap.
+		if ( Controller.IsValid() )
+			Controller.UseInputControls = !IsDowned && !InputLocked;
+
+		if ( IsDowned || InputLocked ) return;
+
+		// Input.Pressed is per frame, so it has to be read here rather than in FixedUpdate.
+		if ( Input.Pressed( "Transform" ) )
+			RequestTeam( IsChaser ? HussTeam.Runner : HussTeam.Chaser );
+	}
+
+	protected override void OnFixedUpdate()
+	{
+		if ( Networking.IsHost )
+			UpdateRespawn();
+
+		if ( IsProxy ) return;
+
+		UpdateStamina();
+		UpdateSpeed();
+	}
+
+	// ----------------------------------------------------------- team switch
+
+	/// <summary>
+	/// Ask the host to put us on a team. Called by the owning client.
+	/// </summary>
+	[Rpc.Host]
+	public void RequestTeam( HussTeam team )
+	{
+		// Only the player that owns this pawn gets to change its team.
+		if ( Network.Owner != Rpc.Caller ) return;
+		if ( IsDowned ) return;
+		if ( Team == team ) return;
+
+		// A chaser can't get back out through the barrier, so don't let anyone turn into one
+		// while they're standing in a safe room.
+		if ( team == HussTeam.Chaser && IsSafe ) return;
+
+		Team = team;
+
+		// Switching sides clears whatever damage you'd taken as a runner.
+		Hits = 0;
+	}
+
+	void OnTeamChanged( HussTeam before, HussTeam after )
+	{
+		ApplyTeam();
+	}
+
+	/// <summary>
+	/// Push the current team out to everything that cares: physics tags, movement speeds,
+	/// the model, and whether the attack component is running.
+	/// </summary>
+	void ApplyTeam()
+	{
+		var chaser = IsChaser;
+
+		// Physics tags live on the root - GameTags walks ancestors, so the collider shapes
+		// underneath pick these up automatically and safe room barriers can filter on them.
+		GameObject.Tags.Set( HussTags.Runner, !chaser );
+		GameObject.Tags.Set( HussTags.Chaser, chaser );
+
+		if ( _move.IsValid() )
+		{
+			_move.BaseSpeed = chaser ? ChaserBaseSpeed : RunnerBaseSpeed;
+			_move.MaxSpeed = chaser ? ChaserMaxSpeed : RunnerMaxSpeed;
+		}
+
+		if ( Controller.IsValid() && Controller.Renderer.IsValid() )
+		{
+			ApplyLook( Controller.Renderer,
+				chaser ? ChaserModel : RunnerModel,
+				chaser ? ChaserAnimGraph : RunnerAnimGraph );
+		}
+
+		if ( _attack.IsValid() )
+			_attack.Enabled = chaser;
+	}
+
+	/// <summary>
+	/// Swap the model and its animation graph together.
+	/// </summary>
+	/// <remarks>
+	/// Assigning Model pushes the new model straight onto the existing SceneModel, and the
+	/// native side rebinds that to the new model's own graph - which for these models is none
+	/// at all. The renderer's AnimationGraph field still holds the graph we want, so setting
+	/// it again is an equality no-op and never reaches the SceneModel. The result is a
+	/// character stuck in its bind pose: the T-pose.
+	///
+	/// Clearing it first breaks that equality check so the reassignment actually lands.
+	/// </remarks>
+	static void ApplyLook( SkinnedModelRenderer renderer, Model model, AnimationGraph graph )
+	{
+		var changingModel = model is not null && renderer.Model != model;
+
+		if ( changingModel )
+		{
+			renderer.AnimationGraph = null;
+			renderer.Model = model;
+		}
+
+		if ( graph is null ) return;
+
+		if ( changingModel || renderer.AnimationGraph != graph )
+		{
+			renderer.AnimationGraph = null;
+			renderer.AnimationGraph = graph;
+		}
+	}
+
+	// --------------------------------------------------------------- stamina
+
+	void UpdateStamina()
+	{
+		// Chasers don't sprint - they get a flat, relentless speed instead.
+		if ( IsChaser )
+		{
+			IsSprinting = false;
+			Stamina = MaxStamina;
+			IsExhausted = false;
+			return;
+		}
+
+		var wantsSprint = Input.Down( "Run" ) && !IsDowned;
+		var moving = Controller.IsValid() && Controller.WishVelocity.Length > 1.0f;
+
+		IsSprinting = wantsSprint && moving && !IsExhausted;
+
+		if ( IsSprinting )
+		{
+			Stamina = Math.Max( 0, Stamina - StaminaDrain * Time.Delta );
+			_timeSinceSprint = 0;
+
+			if ( Stamina <= 0 )
+				IsExhausted = true;
+		}
+		else if ( _timeSinceSprint > StaminaRegenDelay )
+		{
+			Stamina = Math.Min( MaxStamina, Stamina + StaminaRegen * Time.Delta );
+		}
+
+		// Have to get a decent chunk back before you're allowed to bolt again.
+		if ( IsExhausted && Stamina >= ExhaustedRecovery )
+			IsExhausted = false;
+	}
+
+	void UpdateSpeed()
+	{
+		if ( !_move.IsValid() ) return;
+
+		_move.SpeedScale = IsSprinting ? SprintScale : 1.0f;
+	}
+
+	// ---------------------------------------------------------------- damage
+
+	/// <summary>
+	/// Register a hit from a chaser. Host only - see <see cref="ChaserAttack"/> for who calls it.
+	/// </summary>
+	public bool TakeHit( HussPlayer attacker )
+	{
+		if ( !Networking.IsHost ) return false;
+		if ( IsDowned || IsSafe || IsChaser ) return false;
+
+		Hits++;
+
+		if ( Hits >= HitsToKill )
+			GoDown();
+
+		return true;
+	}
+
+	void GoDown()
+	{
+		// Ragdoll first: it copies its pose off the live renderer, and setting IsDowned takes
+		// that renderer away.
+		SpawnRagdoll( Controller.IsValid() ? Controller.Velocity : Vector3.Zero );
+
+		_respawnAt = RespawnDelay;
+		IsDowned = true;
+	}
+
+	/// <summary>
+	/// Ragdolls are cosmetic, so each machine builds its own local copy rather than networking
+	/// a whole jointed physics body. They only need to look roughly the same, not match exactly.
+	/// </summary>
+	[Rpc.Broadcast]
+	void SpawnRagdoll( Vector3 velocity )
+	{
+		ClearRagdoll();
+
+		var renderer = Controller.IsValid() ? Controller.Renderer : null;
+		if ( !renderer.IsValid() ) return;
+
+		_ragdoll = Controller.CreateRagdoll( $"{GameObject.Name} Ragdoll" );
+
+		// Hand over from the animated body to the physics one only once the copy exists, so
+		// the ragdoll inherits the pose we died in rather than a bind pose.
+		renderer.Enabled = false;
+
+		if ( !_ragdoll.IsValid() ) return;
+
+		foreach ( var body in _ragdoll.GetComponentsInChildren<Rigidbody>() )
+		{
+			body.Velocity = velocity;
+			body.AngularVelocity = Vector3.Random * RagdollSpin;
+		}
+	}
+
+	void ClearRagdoll()
+	{
+		_ragdoll?.Destroy();
+		_ragdoll = null;
+	}
+
+	protected override void OnDestroy()
+	{
+		ClearRagdoll();
+	}
+
+	void UpdateRespawn()
+	{
+		if ( !IsDowned ) return;
+		if ( !_respawnAt ) return;
+
+		Hits = 0;
+		IsDowned = false;
+
+		var spawn = FindSpawnPoint();
+		Respawn( spawn.Position, spawn.Rotation.Angles() );
+	}
+
+	Transform FindSpawnPoint()
+	{
+		var spawnPoints = Scene.GetAllComponents<SpawnPoint>().ToArray();
+
+		if ( spawnPoints.Length > 0 )
+			return Random.Shared.FromArray( spawnPoints ).WorldTransform;
+
+		return WorldTransform;
+	}
+
+	/// <summary>
+	/// Put the body back. Has to run on the owner because they're the one simulating it.
+	/// </summary>
+	[Rpc.Owner]
+	void Respawn( Vector3 position, Angles angles )
+	{
+		WorldPosition = position;
+		Controller.EyeAngles = angles with { pitch = 0, roll = 0 };
+
+		if ( Controller.Body.IsValid() )
+			Controller.Body.Velocity = 0;
+
+		Transform.ClearInterpolation();
+	}
+
+	void OnDownedChanged( bool before, bool after )
+	{
+		if ( !Controller.IsValid() ) return;
+
+		// UseInputControls is driven from OnUpdate - see InputLocked.
+
+		// WishVelocity is owner authoritative - proxies must not write to it.
+		if ( after && !IsProxy )
+			Controller.WishVelocity = 0;
+
+		// Park the capsule while we're down so it isn't an invisible wall people run into,
+		// and so it can't drift off while the ragdoll does its thing.
+		if ( Controller.Body.IsValid() )
+		{
+			Controller.Body.MotionEnabled = !after;
+			if ( !after ) Controller.Body.Velocity = 0;
+		}
+
+		if ( Controller.ColliderObject.IsValid() )
+			Controller.ColliderObject.Enabled = !after;
+
+		// Getting up: the ragdoll goes away and the animated body comes back. Going down is
+		// handled in SpawnRagdoll, which has to do it in a specific order.
+		if ( !after )
+		{
+			ClearRagdoll();
+
+			if ( Controller.Renderer.IsValid() )
+				Controller.Renderer.Enabled = true;
+		}
+	}
+
+	// ------------------------------------------------------------- safe room
+
+	/// <summary>
+	/// Called by <see cref="SafeZone"/> on the host as we cross a safe room boundary.
+	/// </summary>
+	internal void SetInSafeZone( bool inside )
+	{
+		if ( !Networking.IsHost ) return;
+
+		_safeZones = Math.Max( 0, _safeZones + (inside ? 1 : -1) );
+		IsSafe = _safeZones > 0;
+	}
+}

@@ -1,0 +1,95 @@
+@using Sandbox;
+@using Sandbox.UI;
+@using Hussrooms;
+@namespace Hussrooms.UI
+@inherits PanelComponent
+
+<root class="@(Player.IsValid() ? "" : "hidden")">
+
+	@if ( Player.IsValid() )
+	{
+		<div class="role @RoleClass">
+			<div class="role-name">@(Player.IsChaser ? "CHASER" : "RUNNER")</div>
+			<div class="role-hint">@RoleHint</div>
+		</div>
+
+		@if ( Player.IsRunner )
+		{
+			<div class="pips">
+				@for ( int i = 0; i < Player.HitsToKill; i++ )
+				{
+					<div class="pip @(i < Player.HitsRemaining ? "full" : "gone")"></div>
+				}
+			</div>
+		}
+
+		<div class="stamina @StaminaClass">
+			<div class="label">STAMINA</div>
+			<div class="track">
+				<div class="fill" style="width: @(Player.StaminaFraction * 100)%;"></div>
+			</div>
+		</div>
+
+		@if ( Player.IsSafe )
+		{
+			<div class="banner safe">SAFE ROOM</div>
+		}
+
+		@if ( Player.IsDowned )
+		{
+			<div class="banner downed">DOWNED &mdash; GETTING BACK UP</div>
+		}
+
+		@if ( ShiftLocked )
+		{
+			<div class="shiftlock">SHIFT LOCK</div>
+		}
+
+		<div class="keys">
+			<span><b>SHIFT</b> sprint</span>
+			<span><b>RMB</b> turn with camera</span>
+			<span><b>ALT</b> shift lock</span>
+			<span><b>T</b> @(Player.IsChaser ? "become runner" : "become chaser")</span>
+		</div>
+	}
+
+</root>
+
+@code
+{
+	HussPlayer Player => HussPlayer.Local;
+
+	string RoleClass => Player.IsValid() && Player.IsChaser ? "chaser" : "runner";
+
+	string StaminaClass
+	{
+		get
+		{
+			if ( !Player.IsValid() ) return "";
+			if ( Player.IsChaser ) return "unused";
+			if ( Player.IsExhausted ) return "spent";
+			if ( Player.IsSprinting ) return "burning";
+
+			return "";
+		}
+	}
+
+	string RoleHint => Player.IsValid() && Player.IsChaser
+		? "Get close. It swings on its own."
+		: "Outrun them. Safe rooms lock chasers out.";
+
+	bool ShiftLocked => Player.IsValid() && Player.Camera.IsValid() && Player.Camera.ShiftLock;
+
+	/// <summary>
+	/// Rebuild only when something on screen actually changed. Stamina is bucketed so we
+	/// aren't re-rendering the whole tree every frame while it drains.
+	/// </summary>
+	protected override int BuildHash() => System.HashCode.Combine(
+		Player.IsValid(),
+		Player?.Team,
+		Player?.HitsRemaining,
+		(int)((Player?.StaminaFraction ?? 0) * 50),
+		Player?.IsSafe,
+		Player?.IsDowned,
+		System.HashCode.Combine( Player?.IsSprinting, Player?.IsExhausted, ShiftLocked ) );
+}

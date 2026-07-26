@@ -1,0 +1,91 @@
+@using Sandbox;
+@using Sandbox.UI;
+@using Hussrooms;
+@namespace Hussrooms.UI
+@inherits PanelComponent
+
+<root class="@(IsOpen ? "open" : "closed")">
+
+	<div class="card">
+
+		<div class="title">HUSSROOMS</div>
+		<div class="tagline">Slippery floors. Bad intentions.</div>
+
+		<div class="buttons">
+			<div class="btn runner" @onclick=@PlayAsRunner>
+				<div class="btn-title">PLAY AS RUNNER</div>
+				<div class="btn-sub">Sprint on stamina. Reach a safe room.</div>
+			</div>
+
+			<div class="btn chaser" @onclick=@PlayAsChaser>
+				<div class="btn-title">PLAY AS CHASER</div>
+				<div class="btn-sub">Get close. Three hits puts them down.</div>
+			</div>
+		</div>
+
+		<div class="footer">
+			<span>@PlayerCount in the lobby</span>
+			<span>Press <b>Q</b> to come back here</span>
+		</div>
+
+	</div>
+
+</root>
+
+@code
+{
+	/// <summary>
+	/// Starts up showing the menu, then gets out of the way once you've picked a side.
+	/// Purely local - nobody else sees or waits for your menu.
+	/// </summary>
+	public bool IsOpen { get; private set; } = true;
+
+	int PlayerCount => Connection.All?.Count ?? 1;
+
+	// You can pick a side before your pawn has finished spawning, so hold onto the choice.
+	HussTeam? _pendingTeam;
+
+	protected override void OnUpdate()
+	{
+		var player = HussPlayer.Local;
+
+		if ( _pendingTeam.HasValue && player.IsValid() )
+		{
+			player.RequestTeam( _pendingTeam.Value );
+			_pendingTeam = null;
+		}
+
+		if ( !IsOpen && Input.Pressed( "Menu" ) )
+			SetOpen( true );
+
+		// The menu is the only thing that should be reading input while it's up.
+		if ( player.IsValid() )
+			player.InputLocked = IsOpen;
+	}
+
+	protected override void OnDisabled()
+	{
+		// Don't leave the player frozen if this panel goes away.
+		if ( HussPlayer.Local is HussPlayer player )
+			player.InputLocked = false;
+	}
+
+	void PlayAsRunner() => Play( HussTeam.Runner );
+	void PlayAsChaser() => Play( HussTeam.Chaser );
+
+	void Play( HussTeam team )
+	{
+		_pendingTeam = team;
+		SetOpen( false );
+	}
+
+	void SetOpen( bool open )
+	{
+		if ( IsOpen == open ) return;
+
+		IsOpen = open;
+		StateHasChanged();
+	}
+
+	protected override int BuildHash() => System.HashCode.Combine( IsOpen, PlayerCount );
+}
