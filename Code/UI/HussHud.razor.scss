@@ -1,173 +1,151 @@
-HussHud
-{
-	position: absolute;
-	top: 0;
-	left: 0;
-	right: 0;
-	bottom: 0;
-	pointer-events: none;
-	font-family: Londrina Solid;
-	color: white;
+HussHud {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  pointer-events: none;
+  font-family: Londrina Solid;
+  color: white;
 
-	&.hidden
-	{
-		opacity: 0;
-	}
+  &.hidden {
+    opacity: 0;
+  }
 
-	.role
-	{
-		position: absolute;
-		top: 32px;
-		left: 32px;
-		flex-direction: column;
-		padding: 12px 20px;
+  .role {
+    position: absolute;
+    top: 32px;
+    left: 32px;
+    flex-direction: column;
+    padding: 12px 20px;
 
 
-		.role-name
-		{
-			font-size: 60px;
-			font-weight: 800;
-			letter-spacing: 2px;
-		}
+    .role-name {
+      font-size: 60px;
+      font-weight: 800;
+      letter-spacing: 2px;
+    }
 
-	}
+  }
 
-	.pips
-	{
-		position: absolute;
-		top: 32px;
-		right: 32px;
-		display: flex;
-		flex-direction: row;
+  .pips {
+    position: absolute;
+    top: 32px;
+    right: 32px;
+    display: flex;
+    flex-direction: row;
 
-		.pip
-		{
-			width: 22px;
-			height: 22px;
-			margin-left: 8px;
-			display: flex;
-			align-items: center;
-			justify-content: center;
-			color: #ff5454;
-			font-size: 28px;
-			transition: color 0.15s ease-out, transform 0.15s ease-out;
+    .pip {
+      width: 22px;
+      height: 22px;
+      margin-left: 8px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: #ff5454;
+      font-size: 28px;
+      transition: color 0.15s ease-out, transform 0.15s ease-out;
 
-			.heart
-			{
-				font-style: normal;
-			}
+      .heart {
+        font-style: normal;
+      }
 
-			&.gone
-			{
-				color: rgba( white, 0.35 );
-				transform: scale( 0.9 );
-			}
-		}
-	}
+      &.gone {
+        color: rgba(white, 0.35);
+        transform: scale(0.9);
+      }
+    }
+  }
 
-	.stamina
-	{
-		position: absolute;
-		bottom: 44px;
-		left: 45%;
-		width: 220px;
-		flex-direction: column;
+  .stamina {
+    position: absolute;
+    bottom: 44px;
+    left: 45%;
+    width: 220px;
+    flex-direction: column;
 
-		&.unused
-		{
-			opacity: 0.15;
-		}
+    &.unused {
+      opacity: 0.15;
+    }
 
-		.track
-		{
-			width: 100%;
-			height: 15px;
-			border-radius: 8px;
-			background-color: rgb(31, 31, 31);
-		}
+    .track {
+      width: 100%;
+      height: 15px;
+      border-radius: 8px;
+      background-color: rgb(31, 31, 31);
+    }
 
-		.fill
-		{
-			height: 100%;
-			background-color: #61ff79;
-			border-radius: 8px;
-			transition: width 0.1s linear, background-color 0.2s ease-out;
-		}
+    .fill {
+      height: 100%;
+      background-color: #61ff79;
+      border-radius: 8px;
+      transition: width 0.1s linear, background-color 0.2s ease-out;
+    }
 
-		&.spent .fill
-		{
-			background-color: #ff5470;
-		}
-	}
+    &.spent .fill {
+      background-color: #ff5470;
+    }
+  }
 
-	.banner
-	{
-		position: absolute;
-		top: 120px;
-		left: 0;
-		right: 0;
-		justify-content: center;
-		font-size: 30px;
-		font-weight: 800;
-		letter-spacing: 4px;
-		text-shadow: 0px 2px 8px rgba( black, 0.8 );
+  .banner {
+    position: absolute;
+    top: 120px;
+    left: 0;
+    right: 0;
+    justify-content: center;
+    font-size: 30px;
+    font-weight: 800;
+    letter-spacing: 4px;
+    text-shadow: 0px 2px 8px rgba(black, 0.8);
 
-		&.safe
-		{
-			color: #7ce38b;
-		}
+    &.safe {
+      color: #7ce38b;
+    }
 
-		&.downed
-		{
-			color: #ff5470;
-		}
-	}
+    &.downed {
+      color: #ff5470;
+    }
+  }
 
-	.shiftlock
-	{
-		position: absolute;
-		bottom: 44px;
-		right: 32px;
-		padding: 5px 12px;
-		border-radius: 4px;
-		font-size: 12px;
-		font-weight: 800;
-		letter-spacing: 3px;
-	}
+  .shiftlock {
+    position: absolute;
+    bottom: 44px;
+    right: 32px;
+    padding: 5px 12px;
+    border-radius: 4px;
+    font-size: 12px;
+    font-weight: 800;
+    letter-spacing: 3px;
+  }
 
-	.keys
-	{
-		position: absolute;
-		bottom: 20px;
-		right: 32px;
-		flex-direction: row;
-		font-size: 16px;
-      font-weight: 300;
-		opacity: 0.5;
+  .keys {
+    position: absolute;
+    bottom: 20px;
+    right: 32px;
+    flex-direction: row;
+    font-size: 16px;
+    font-weight: 300;
+    opacity: 0.5;
 
-		span
-		{
-			margin-left: 18px;
-		}
+    span {
+      margin-left: 18px;
+    }
 
-		.Image,
-		.glyph
-		{
-			width: 20px;
-			height: 20px;
-			margin-right: 8px;
-			vertical-align: middle;
-		}
+    .Image,
+    .glyph {
+      width: 20px;
+      height: 20px;
+      margin-right: 8px;
+      vertical-align: middle;
+    }
 
-		.key-label
-		{
-			margin-left: 4px;
-		}
+    .key-label {
+      margin-left: 4px;
+    }
 
-		b
-		{
-			font-weight: 800;
-			margin-right: 4px;
-		}
-	}
+    b {
+      font-weight: 800;
+      margin-right: 4px;
+    }
+  }
 }

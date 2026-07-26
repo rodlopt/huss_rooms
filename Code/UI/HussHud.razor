@@ -5,51 +5,62 @@
 @namespace Hussrooms.UI
 @inherits PanelComponent
 
-<root class="@(Player.IsValid() ? "" : "hidden")">
+<root class="@( Player.IsValid() ? "" : "hidden" )">
 
-	@if (Player.IsValid())
+	@if ( Player.IsValid() )
 	{
 		<div class="role @RoleClass">
-			<div class="role-name">@(Player.IsChaser ? "CAPTAIN CLARK" : "CLARK")</div>
+			<div class="role-name">@( Player.IsChaser ? "CAPTAIN CLARK" : "CLARK" )</div>
 		</div>
 		<div class="pips">
-			@for (int i = 0; i < Player.HitsToKill; i++)
+			@for ( int i = 0; i < Player.HitsToKill; i++ )
 			{
-				<div class="pip @(i < Player.HitsRemaining ? "full" : "gone")">
+				<div class="pip @( i < Player.HitsRemaining ? "full" : "gone" )">
 					<i class="heart">❤</i>
 				</div>
 			}
 		</div>
-		@if (Player.IsRunner)
+		@if ( Player.IsRunner )
 		{
 			<div class="stamina @StaminaClass">
 				<div class="track">
-					<div class="fill" style="width: @(Player.StaminaFraction * 100)%;"></div>
+					<div class="fill" style="width: @( Player.StaminaFraction * 100 )%;"></div>
 				</div>
 			</div>
 		}
 
 
-		@if (Player.IsSafe)
+		@if ( Player.IsSafe )
 		{
 			<div class="banner safe">SAFE ROOM</div>
 		}
 
-		@if (Player.IsDowned)
+		@if ( Player.IsDowned )
 		{
 			<div class="banner downed">DOWNED &mdash; GETTING BACK UP</div>
 		}
 
-		@if (ShiftLocked)
+		@if ( ShiftLocked )
 		{
 			<div class="shiftlock">shiftlocked</div>
 		}
 
 		<div class="keys">
 			<span>
-				@if (!string.IsNullOrEmpty( SprintGlyph ))
+				@if ( !string.IsNullOrEmpty( PropMenuGlyph ) )
 				{
-					<img src="@SprintGlyph" class="glyph" />
+					<img src="@PropMenuGlyph" class="glyph"/>
+				}
+				else
+				{
+					<b>Q</b>
+				}
+				<span class="key-label"> Props</span>
+			</span>
+			<span>
+				@if ( !string.IsNullOrEmpty( SprintGlyph ) )
+				{
+					<img src="@SprintGlyph" class="glyph"/>
 				}
 				else
 				{
@@ -58,9 +69,9 @@
 				<span class="key-label"> Sprint</span>
 			</span>
 			<span>
-				@if (!string.IsNullOrEmpty( RotateGlyph ))
+				@if ( !string.IsNullOrEmpty( RotateGlyph ) )
 				{
-					<img src="@RotateGlyph" class="glyph" />
+					<img src="@RotateGlyph" class="glyph"/>
 				}
 				else
 				{
@@ -69,9 +80,9 @@
 				<span class="key-label"> Turn With camera</span>
 			</span>
 			<span>
-				@if (!string.IsNullOrEmpty( ShiftLockGlyph ))
+				@if ( !string.IsNullOrEmpty( ShiftLockGlyph ) )
 				{
-					<img src="@ShiftLockGlyph" class="glyph" />
+					<img src="@ShiftLockGlyph" class="glyph"/>
 				}
 				else
 				{
@@ -80,9 +91,9 @@
 				<span class="key-label"> ShiftLock</span>
 			</span>
 			<span>
-				@if (!string.IsNullOrEmpty( TauntGlyph ))
+				@if ( !string.IsNullOrEmpty( TauntGlyph ) )
 				{
-					<img src="@TauntGlyph" class="glyph" />
+					<img src="@TauntGlyph" class="glyph"/>
 				}
 				else
 				{
@@ -91,15 +102,15 @@
 				<span class="key-label"> Taunt</span>
 			</span>
 			<span>
-				@if (!string.IsNullOrEmpty( TransformGlyph ))
+				@if ( !string.IsNullOrEmpty( TransformGlyph ) )
 				{
-					<img src="@TransformGlyph" class="glyph" />
+					<img src="@TransformGlyph" class="glyph"/>
 				}
 				else
 				{
 					<b>T</b>
 				}
-				<span class="key-label"> @(Player.IsChaser ? "Become Clark" : "Become Captain Clark")</span>
+				<span class="key-label"> @( Player.IsChaser ? "Become Clark" : "Become Captain Clark" )</span>
 			</span>
 		</div>
 	}
@@ -116,9 +127,9 @@
 	{
 		get
 		{
-			if (!Player.IsValid()) return "";
-			if (Player.IsChaser) return "unused";
-			if (Player.IsExhausted) return "spent";
+			if ( !Player.IsValid() ) return "";
+			if ( Player.IsChaser ) return "unused";
+			if ( Player.IsExhausted ) return "spent";
 
 			return "";
 		}
@@ -137,16 +148,19 @@
 		(int)((Player?.StaminaFraction ?? 0) * 50),
 		Player?.IsSafe,
 		Player?.IsDowned,
-		System.HashCode.Combine(Player?.IsSprinting, Player?.IsExhausted, ShiftLocked));
+		System.HashCode.Combine( Player?.IsSprinting, Player?.IsExhausted, ShiftLocked ) );
 
-	string SprintGlyph => Input.GetGlyph("Run", InputGlyphSize.Medium, true).ResourcePath ?? "";
+	string SprintGlyph => Input.GetGlyph( "Run", InputGlyphSize.Medium, true ).ResourcePath ?? "";
+
 	string RotateGlyph => Player.IsValid() && Player.Camera.IsValid()
-		? Input.GetGlyph(Player.Camera.RotateBodyButton ?? "Attack2", InputGlyphSize.Medium, true).ResourcePath ?? ""
+		? Input.GetGlyph( Player.Camera.RotateBodyButton ?? "Attack2", InputGlyphSize.Medium, true ).ResourcePath ?? ""
 		: "";
+
 	string ShiftLockGlyph => Player.IsValid() && Player.Camera.IsValid()
-		? Input.GetGlyph(Player.Camera.ShiftLockButton ?? "ShiftLock", InputGlyphSize.Medium, true).ResourcePath ?? ""
+		? Input.GetGlyph( Player.Camera.ShiftLockButton ?? "ShiftLock", InputGlyphSize.Medium, true ).ResourcePath ?? ""
 		: "";
-	
-	string TauntGlyph => Input.GetGlyph("Taunt", InputGlyphSize.Medium, true).ResourcePath ?? "";
-	string TransformGlyph => Input.GetGlyph("Transform", InputGlyphSize.Medium, true).ResourcePath ?? "";
+
+	string PropMenuGlyph => Input.GetGlyph( "Menu", InputGlyphSize.Medium, true ).ResourcePath ?? "";
+	string TauntGlyph => Input.GetGlyph( "Taunt", InputGlyphSize.Medium, true ).ResourcePath ?? "";
+	string TransformGlyph => Input.GetGlyph( "Transform", InputGlyphSize.Medium, true ).ResourcePath ?? "";
 }

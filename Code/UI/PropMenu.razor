@@ -1,0 +1,76 @@
+@using Hussrooms
+@using Sandbox;
+@using Sandbox.UI;
+@inherits PanelComponent
+@namespace Sandbox
+
+<root class="@( Show ? "visible" : "" )">
+	<div class="title">
+		<label>Props</label>
+		<div style="flex-grow: 1"></div>
+		<div class="close" @onclick=@( () => Close() )>X</div>
+	</div>
+	<div class="container">
+		@foreach ( var prop in SpawnableProps )
+		{
+			<div class="prop" @onclick=@( () => OnPropClicked( prop.Prop ) )>
+				<Image Texture=@GetPropIcon( prop.Prop )/>
+				<h1>@prop.Name</h1>
+			</div>
+		}
+	</div>
+</root>
+
+@code
+{
+	public bool Show { get; set; } = false;
+
+	public struct SpawnableProp
+	{
+		public string Name { get; set; }
+		public GameObject Prop { get; set; }
+	}
+
+	[Property, WideMode, InlineEditor] public List<SpawnableProp> SpawnableProps { get; set; }
+
+	private void OnPropClicked( GameObject prefab )
+	{
+		HussPlayer.Local?.TrySpawnProp( prefab );
+	}
+
+	protected override void OnUpdate()
+	{
+		if ( Input.Pressed( "Menu" ) )
+		{
+			Show = !Show;
+		}
+	}
+
+	void Close()
+	{
+		Show = false;
+	}
+
+	private Dictionary<GameObject, Texture> _iconCache = new();
+
+	public Texture GetPropIcon( GameObject target )
+	{
+		if ( !target.IsValid() )
+			return Texture.Transparent;
+
+		if ( _iconCache.TryGetValue( target, out var cachedTexture ) )
+		{
+			return cachedTexture;
+		}
+
+		using var bitmap = new Bitmap( 128, 128 );
+		SceneUtility.RenderGameObjectToBitmap( target, bitmap );
+
+		var texture = bitmap.ToTexture();
+		_iconCache[target] = texture;
+
+		return texture;
+	}
+
+	protected override int BuildHash() => System.HashCode.Combine( Show );
+}

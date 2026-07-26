@@ -185,7 +185,12 @@
         "ChaserMaxSpeed": 410,
         "ChaserModel": "models/captainhuss/captainclark.vmdl",
         "ExhaustedRecovery": 30,
+        "Head": {
+          "_type": "gameobject",
+          "go": "a16bab1d-e2ce-46c5-bf0d-7a3b80c3b266"
+        },
         "HitsToKill": 3,
+        "MaxProps": 15,
         "MaxStamina": 100,
         "OnComponentDestroy": null,
         "OnComponentDisabled": null,
@@ -193,12 +198,14 @@
         "OnComponentFixedUpdate": null,
         "OnComponentStart": null,
         "OnComponentUpdate": null,
+        "PropSpawnCooldown": 1,
         "RagdollSpin": 220,
         "RespawnDelay": 3,
         "RunnerAnimGraph": "animgraphs/clark.vanmgrph",
         "RunnerBaseSpeed": 230,
         "RunnerMaxSpeed": 340,
         "RunnerModel": "models/clark/clark.vmdl",
+        "SpawnRange": 40,
         "SprintScale": 1.45,
         "StaminaDrain": 26,
         "StaminaRegen": 16,
@@ -311,7 +318,26 @@
             "UseAnimGraph": true
           }
         ],
-        "Children": []
+        "Children": [
+          {
+            "__guid": "a16bab1d-e2ce-46c5-bf0d-7a3b80c3b266",
+            "__version": 2,
+            "Flags": 0,
+            "Name": "Head",
+            "Position": "0,0,64",
+            "Rotation": "0,0,0,1",
+            "Scale": "1,1,1",
+            "Tags": "",
+            "Enabled": true,
+            "NetworkMode": 2,
+            "NetworkFlags": 0,
+            "NetworkOrphaned": 0,
+            "NetworkTransmit": true,
+            "OwnerTransfer": 1,
+            "Components": [],
+            "Children": []
+          }
+        ]
       },
       {
         "__guid": "89e874c5-b323-4b33-a05e-b722f0ee1a5d",

@@ -619,6 +619,41 @@
           "OnComponentFixedUpdate": null,
           "OnComponentStart": null,
           "OnComponentUpdate": null
+        },
+        {
+          "__type": "Sandbox.PropMenu",
+          "__guid": "cd269225-aa75-4966-9685-5e37f3b93c2c",
+          "__enabled": true,
+          "Flags": 0,
+          "OnComponentDestroy": null,
+          "OnComponentDisabled": null,
+          "OnComponentEnabled": null,
+          "OnComponentFixedUpdate": null,
+          "OnComponentStart": null,
+          "OnComponentUpdate": null,
+          "SpawnableProps": [
+            {
+              "Name": "Chair",
+              "Prop": {
+                "_type": "gameobject",
+                "prefab": "prefabs/props/chair.prefab"
+              }
+            },
+            {
+              "Name": "Table",
+              "Prop": {
+                "_type": "gameobject",
+                "prefab": "prefabs/props/table.prefab"
+              }
+            },
+            {
+              "Name": "Cooker",
+              "Prop": {
+                "_type": "gameobject",
+                "prefab": "prefabs/props/cooker.prefab"
+              }
+            }
+          ]
         }
       ],
       "Children": []

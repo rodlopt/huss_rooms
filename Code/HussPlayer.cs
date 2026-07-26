@@ -9,8 +9,10 @@ namespace Hussrooms;
 /// entirely by their own input.
 /// </summary>
 [Icon( "directions_run" ), Group( "Hussrooms" ), Title( "Huss Player" )]
-public sealed class HussPlayer : Component, Component.INetworkSpawn
+public partial class HussPlayer : Component, Component.INetworkSpawn
 {
+	[Property] public GameObject Head { get; set; }
+
 	[RequireComponent] public PlayerController Controller { get; set; }
 
 	MoveModeIcy _move;
@@ -36,6 +38,7 @@ public sealed class HussPlayer : Component, Component.INetworkSpawn
 			return _local;
 		}
 	}
+
 	static HussPlayer _local;
 
 	// ----------------------------------------------------------------- identity
@@ -46,7 +49,8 @@ public sealed class HussPlayer : Component, Component.INetworkSpawn
 	/// Filled in by the host from the owning connection rather than by the owner, so every
 	/// machine gets the same answer and nobody can name themselves whatever they like.
 	/// </summary>
-	[Sync( SyncFlags.FromHost )] public string DisplayName { get; set; }
+	[Sync( SyncFlags.FromHost )]
+	public string DisplayName { get; set; }
 
 	/// <summary>
 	/// Runs on every machine as the pawn spawns, and hands us the connection it belongs to.
@@ -76,11 +80,10 @@ public sealed class HussPlayer : Component, Component.INetworkSpawn
 	/// <summary>
 	/// Which side we're on. Set through <see cref="RequestTeam"/> so the host stays in charge.
 	/// </summary>
-	[Sync( SyncFlags.FromHost ), Change( nameof( OnTeamChanged ) )]
+	[Sync( SyncFlags.FromHost ), Change( nameof(OnTeamChanged) )]
 	public HussTeam Team { get; set; } = HussTeam.Runner;
 
-	[Property, Group( "Team" )]
-	public float TeamSwitchCooldown { get; set; } = 1.0f;
+	[Property, Group( "Team" )] public float TeamSwitchCooldown { get; set; } = 1.0f;
 
 	TimeSince _timeSinceTeamSwitch;
 
@@ -100,7 +103,8 @@ public sealed class HussPlayer : Component, Component.INetworkSpawn
 	/// Written by <see cref="HussCamera"/> on the owner; synced so remote players turn the
 	/// same way we see ourselves turn.
 	/// </summary>
-	[Sync] public bool FaceCamera { get; set; }
+	[Sync]
+	public bool FaceCamera { get; set; }
 
 	[Property, Group( "Looks" )] public Model RunnerModel { get; set; }
 	[Property, Group( "Looks" )] public AnimationGraph RunnerAnimGraph { get; set; }
@@ -112,19 +116,24 @@ public sealed class HussPlayer : Component, Component.INetworkSpawn
 	[Property, Group( "Stamina" )] public float MaxStamina { get; set; } = 100.0f;
 
 	/// <summary>Stamina spent per second while sprinting.</summary>
-	[Property, Group( "Stamina" )] public float StaminaDrain { get; set; } = 26.0f;
+	[Property, Group( "Stamina" )]
+	public float StaminaDrain { get; set; } = 26.0f;
 
 	/// <summary>Stamina recovered per second while not sprinting.</summary>
-	[Property, Group( "Stamina" )] public float StaminaRegen { get; set; } = 16.0f;
+	[Property, Group( "Stamina" )]
+	public float StaminaRegen { get; set; } = 16.0f;
 
 	/// <summary>How long after sprinting before stamina starts coming back.</summary>
-	[Property, Group( "Stamina" )] public float StaminaRegenDelay { get; set; } = 0.9f;
+	[Property, Group( "Stamina" )]
+	public float StaminaRegenDelay { get; set; } = 0.9f;
 
 	/// <summary>Speed multiplier while sprinting. Runners sprint faster than a chaser can move.</summary>
-	[Property, Group( "Stamina" )] public float SprintScale { get; set; } = 1.45f;
+	[Property, Group( "Stamina" )]
+	public float SprintScale { get; set; } = 1.45f;
 
 	/// <summary>Once you bottom out, this much stamina has to come back before you can sprint again.</summary>
-	[Property, Group( "Stamina" )] public float ExhaustedRecovery { get; set; } = 30.0f;
+	[Property, Group( "Stamina" )]
+	public float ExhaustedRecovery { get; set; } = 30.0f;
 
 	[Sync] public float Stamina { get; set; } = 100.0f;
 	[Sync] public bool IsSprinting { get; set; }
@@ -142,12 +151,15 @@ public sealed class HussPlayer : Component, Component.INetworkSpawn
 	[Property, Group( "Health" )] public float RespawnDelay { get; set; } = 3.0f;
 
 	/// <summary>How much random tumble to give the ragdoll when it drops.</summary>
-	[Property, Group( "Health" )] public float RagdollSpin { get; set; } = 220.0f;
+	[Property, Group( "Health" )]
+	public float RagdollSpin { get; set; } = 220.0f;
 
 	GameObject _ragdoll;
 
 	[Sync( SyncFlags.FromHost )] public int Hits { get; set; }
-	[Sync( SyncFlags.FromHost ), Change( nameof( OnDownedChanged ) )] public bool IsDowned { get; set; }
+
+	[Sync( SyncFlags.FromHost ), Change( nameof(OnDownedChanged) )]
+	public bool IsDowned { get; set; }
 
 	/// <summary>Hits left before this runner goes down.</summary>
 	public int HitsRemaining => Math.Max( 0, HitsToKill - Hits );
@@ -164,7 +176,8 @@ public sealed class HussPlayer : Component, Component.INetworkSpawn
 	/// <summary>
 	/// True while inside a safe room. Chasers can't land a hit on us here.
 	/// </summary>
-	[Sync( SyncFlags.FromHost )] public bool IsSafe { get; set; }
+	[Sync( SyncFlags.FromHost )]
+	public bool IsSafe { get; set; }
 
 	// ------------------------------------------------------------------ life
 
