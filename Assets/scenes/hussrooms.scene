@@ -259,18 +259,6 @@
             {
               "_type": "gameobject",
               "go": "3cc1c67e-62de-4110-94c7-1a4e73a6b095"
-            },
-            {
-              "_type": "gameobject",
-              "go": "426c9c48-0fc6-4204-9d38-1c50cab00794"
-            },
-            {
-              "_type": "gameobject",
-              "go": "8c8d0ae8-98f3-46c2-ae9b-98be7f04f193"
-            },
-            {
-              "_type": "gameobject",
-              "go": "0dc3fabd-bc6a-4935-b1f0-d297918ebb15"
             }
           ],
           "StartServer": true
@@ -286,7 +274,7 @@
           "Rotation": "0,0,0,1",
           "Scale": "1,1,1",
           "Tags": "",
-          "Enabled": false,
+          "Enabled": true,
           "NetworkMode": 2,
           "NetworkFlags": 0,
           "NetworkOrphaned": 0,
@@ -299,7 +287,7 @@
               "__version": 2,
               "Flags": 0,
               "Name": "Spawn 1",
-              "Position": "0,0,64",
+              "Position": "544,-544,96",
               "Rotation": "0,0,0,1",
               "Scale": "1,1,1",
               "Tags": "",
@@ -331,7 +319,7 @@
               "__version": 2,
               "Flags": 0,
               "Name": "Spawn 2",
-              "Position": "0,-384,64",
+              "Position": "406.961792,-457.681366,96.0000687",
               "Rotation": "0,0,0,1",
               "Scale": "1,1,1",
               "Tags": "",
@@ -363,7 +351,7 @@
               "__version": 2,
               "Flags": 0,
               "Name": "Spawn 3",
-              "Position": "384,0,64",
+              "Position": "441.144287,-570.101379,95.9999847",
               "Rotation": "0,0,0,1",
               "Scale": "1,1,1",
               "Tags": "",
@@ -377,102 +365,6 @@
                 {
                   "__type": "Sandbox.SpawnPoint",
                   "__guid": "50b7fde3-558c-4d83-a828-f87586d81444",
-                  "__enabled": true,
-                  "Flags": 0,
-                  "Color": "0.89,0.32,0.05,1",
-                  "OnComponentDestroy": null,
-                  "OnComponentDisabled": null,
-                  "OnComponentEnabled": null,
-                  "OnComponentFixedUpdate": null,
-                  "OnComponentStart": null,
-                  "OnComponentUpdate": null
-                }
-              ],
-              "Children": []
-            },
-            {
-              "__guid": "426c9c48-0fc6-4204-9d38-1c50cab00794",
-              "__version": 2,
-              "Flags": 0,
-              "Name": "Spawn 4",
-              "Position": "0,384,64",
-              "Rotation": "0,0,0,1",
-              "Scale": "1,1,1",
-              "Tags": "",
-              "Enabled": true,
-              "NetworkMode": 2,
-              "NetworkFlags": 0,
-              "NetworkOrphaned": 0,
-              "NetworkTransmit": true,
-              "OwnerTransfer": 1,
-              "Components": [
-                {
-                  "__type": "Sandbox.SpawnPoint",
-                  "__guid": "b4868140-4e2a-461e-b459-c1613de4045b",
-                  "__enabled": true,
-                  "Flags": 0,
-                  "Color": "0.89,0.32,0.05,1",
-                  "OnComponentDestroy": null,
-                  "OnComponentDisabled": null,
-                  "OnComponentEnabled": null,
-                  "OnComponentFixedUpdate": null,
-                  "OnComponentStart": null,
-                  "OnComponentUpdate": null
-                }
-              ],
-              "Children": []
-            },
-            {
-              "__guid": "8c8d0ae8-98f3-46c2-ae9b-98be7f04f193",
-              "__version": 2,
-              "Flags": 0,
-              "Name": "Spawn 5",
-              "Position": "-288,0,64",
-              "Rotation": "0,0,0,1",
-              "Scale": "1,1,1",
-              "Tags": "",
-              "Enabled": true,
-              "NetworkMode": 2,
-              "NetworkFlags": 0,
-              "NetworkOrphaned": 0,
-              "NetworkTransmit": true,
-              "OwnerTransfer": 1,
-              "Components": [
-                {
-                  "__type": "Sandbox.SpawnPoint",
-                  "__guid": "7dfa1100-09e3-4e65-bfd0-0bfe17a058d5",
-                  "__enabled": true,
-                  "Flags": 0,
-                  "Color": "0.89,0.32,0.05,1",
-                  "OnComponentDestroy": null,
-                  "OnComponentDisabled": null,
-                  "OnComponentEnabled": null,
-                  "OnComponentFixedUpdate": null,
-                  "OnComponentStart": null,
-                  "OnComponentUpdate": null
-                }
-              ],
-              "Children": []
-            },
-            {
-              "__guid": "0dc3fabd-bc6a-4935-b1f0-d297918ebb15",
-              "__version": 2,
-              "Flags": 0,
-              "Name": "Spawn 6",
-              "Position": "224,224,64.0000381",
-              "Rotation": "0,0,0,1",
-              "Scale": "1,1,1",
-              "Tags": "",
-              "Enabled": true,
-              "NetworkMode": 2,
-              "NetworkFlags": 0,
-              "NetworkOrphaned": 0,
-              "NetworkTransmit": true,
-              "OwnerTransfer": 1,
-              "Components": [
-                {
-                  "__type": "Sandbox.SpawnPoint",
-                  "__guid": "370929b0-319d-4720-a989-7d264266953b",
                   "__enabled": true,
                   "Flags": 0,
                   "Color": "0.89,0.32,0.05,1",
@@ -1566,9 +1458,9 @@
           "__version": 2,
           "Flags": 0,
           "Name": "Barrier",
-          "Position": "530.573303,-389.369568,199.999878",
+          "Position": "530.573303,-387.146393,199.999878",
           "Rotation": "0,0,-0.707106769,0.707106769",
-          "Scale": "0.200000003,12,8",
+          "Scale": "0.100000001,12,8",
           "Tags": "saferoom",
           "Enabled": true,
           "NetworkMode": 2,
@@ -1601,8 +1493,8 @@
                 "BloomLayer": false,
                 "AfterUILayer": false
               },
-              "RenderType": "On",
-              "Tint": "0.35,0.95,0.75,0.5"
+              "RenderType": "Off",
+              "Tint": "0.35,0.95,0.75,0.64"
             },
             {
               "__type": "Sandbox.BoxCollider",
