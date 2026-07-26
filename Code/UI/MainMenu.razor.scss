@@ -36,18 +36,9 @@ MainMenu
 	.title
 	{
 		font-size: 82px;
-		font-weight: 900;
-		letter-spacing: 8px;
+		padding-bottom: 12px;
+		font-weight: 700;
 		color: white;
-		text-shadow: 0px 4px 24px rgba( #6ec6ff, 0.5 );
-	}
-
-	.tagline
-	{
-		font-size: 16px;
-		letter-spacing: 2px;
-		opacity: 0.5;
-		margin-bottom: 44px;
 	}
 
 	.buttons
@@ -60,11 +51,9 @@ MainMenu
 	{
 		flex-direction: column;
 		width: 100%;
-		padding: 18px 24px;
+		padding: 8px 24px;
 		margin-bottom: 14px;
-		border-radius: 8px;
 		background-color: rgba( white, 0.06 );
-		border-left: 4px solid #6ec6ff;
 		transition: background-color 0.12s ease-out, transform 0.12s ease-out;
 
 		&.chaser
@@ -75,26 +64,22 @@ MainMenu
 		&:hover
 		{
 			background-color: rgba( white, 0.14 );
-			transform: translateX( 6px );
+			transform: scale( 1.1 );
 		}
 
 		&:active
 		{
-			transform: translateX( 2px ) scale( 0.99 );
+			transform: scale( 0.99 );
 		}
 
 		.btn-title
 		{
 			font-size: 22px;
-			font-weight: 800;
+			font-weight: 600;
 			letter-spacing: 2px;
+			justify-content: center;
 		}
 
-		.btn-sub
-		{
-			font-size: 14px;
-			opacity: 0.55;
-		}
 	}
 
 	.footer
