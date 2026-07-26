@@ -256,6 +256,10 @@ public partial class HussPlayer : Component, Component.INetworkSpawn
 		_timeSinceTeamSwitch = 0;
 	}
 
+	[Property, Group( "Taunts" )] public float TauntCooldown { get; set; } = 5f;
+
+	private TimeSince timeSinceTaunted = 0;
+
 	[Rpc.Host]
 	public void RequestTaunt()
 	{
@@ -263,6 +267,7 @@ public partial class HussPlayer : Component, Component.INetworkSpawn
 			return;
 		if ( Network.Owner != Rpc.Caller ) return;
 		if ( Taunts is null || Taunts.Length == 0 ) return;
+		if ( timeSinceTaunted < TauntCooldown ) return;
 
 		BroadcastTaunt( Random.Shared.Next( Taunts.Length ) );
 	}
@@ -273,6 +278,8 @@ public partial class HussPlayer : Component, Component.INetworkSpawn
 		if ( Taunts is null || tauntIndex < 0 || tauntIndex >= Taunts.Length ) return;
 		var taunt = Taunts[tauntIndex];
 		if ( taunt is null ) return;
+
+		timeSinceTaunted = 0f;
 
 		GameObject.PlaySound( taunt );
 	}

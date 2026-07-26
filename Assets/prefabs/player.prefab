@@ -210,6 +210,7 @@
         "StaminaDrain": 26,
         "StaminaRegen": 16,
         "StaminaRegenDelay": 0.9,
+        "TauntCooldown": 5,
         "Taunts": [
           "sounds/architect.sound",
           "sounds/clarkbite.sound",
