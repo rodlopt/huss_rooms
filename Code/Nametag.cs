@@ -17,8 +17,8 @@ public sealed class Nametag : Component
 {
 	[RequireComponent] public TextRenderer Text { get; set; }
 
-	[Property, Group( "Colours" )] public Color RunnerColor { get; set; } = "#6ec6ff";
-	[Property, Group( "Colours" )] public Color ChaserColor { get; set; } = "#ff5470";
+	[Property, Group( "Colours" )] public Color RunnerColor { get; set; } = "White";
+	[Property, Group( "Colours" )] public Color ChaserColor { get; set; } = "White";
 
 	/// <summary>
 	/// Past this the tag switches off. Stops distant names cluttering the screen.
