@@ -76,17 +76,17 @@ public sealed class ChaserAttack : Component
 
 		if ( !_readyAt ) return;
 
-		var victim = FindTarget();
-		if ( !victim.IsValid() ) return;
+		var target = FindTarget();
+		if ( !target.IsValid() ) return;
 
-		StartSwing( victim );
+		StartSwing( target );
 	}
 
 	// --------------------------------------------------------------- swinging
 
-	void StartSwing( HussPlayer victim )
+	void StartSwing( HussPlayer target )
 	{
-		_target = victim;
+		_target = target;
 		_readyAt = WindupTime + Cooldown;
 
 		// The broadcast is what actually starts the swing, on us as well as everyone else,
@@ -98,38 +98,38 @@ public sealed class ChaserAttack : Component
 	{
 		IsSwinging = false;
 
-		var victim = _target;
+		var target = _target;
 		_target = null;
 
-		if ( !CanBeHit( victim ) ) return;
+		if ( !CanBeHit( target ) ) return;
 
 		// The faster they're moving the harder they are to catch. This is the difference
 		// between a runner who panics into a wall and one who keeps their speed up.
-		var speed = victim.Controller.IsValid() ? victim.Controller.Velocity.WithZ( 0 ).Length : 0.0f;
+		var speed = target.Controller.IsValid() ? target.Controller.Velocity.WithZ( 0 ).Length : 0.0f;
 		var dodge = (speed / DodgeSpeed).Clamp( 0, 1 ) * MaxDodge;
 		var reach = HitRange * (1.0f - dodge);
 
-		if ( DistanceTo( victim ) > reach ) return;
-		if ( !HasLineOfSight( victim ) ) return;
+		if ( DistanceTo( target ) > reach ) return;
+		if ( !HasLineOfSight( target ) ) return;
 
-		SubmitHit( victim );
+		SubmitHit( target );
 	}
 
 	/// <summary>
 	/// Tell the host we landed one. It re-checks the range itself rather than trusting us.
 	/// </summary>
 	[Rpc.Host]
-	void SubmitHit( HussPlayer victim )
+	void SubmitHit( HussPlayer target )
 	{
 		if ( Network.Owner != Rpc.Caller ) return;
-		if ( !victim.IsValid() || !Player.IsValid() ) return;
+		if ( !target.IsValid() || !Player.IsValid() ) return;
 		if ( !Player.IsChaser ) return;
 
 		// Generous compared to the client's own check - it only exists to reject nonsense.
-		if ( DistanceTo( victim ) > Range * 2.0f ) return;
+		if ( DistanceTo( target ) > Range * 2.0f ) return;
 
-		if ( victim.TakeHit( Player ) )
-			BroadcastHit( victim.WorldPosition );
+		if ( target.TakeHit( Player ) )
+			BroadcastHit( target.WorldPosition );
 	}
 
 	[Rpc.Broadcast]
@@ -185,7 +185,6 @@ public sealed class ChaserAttack : Component
 	{
 		if ( !other.IsValid() ) return false;
 		if ( other == Player ) return false;
-		if ( !other.IsRunner ) return false;
 		if ( other.IsDowned ) return false;
 		if ( other.IsSafe ) return false;
 
@@ -208,7 +207,7 @@ public sealed class ChaserAttack : Component
 
 		// Players don't block each other, and neither do triggers - only real geometry.
 		var tr = Scene.Trace.Ray( from, to )
-			.WithoutTags( HussTags.Runner, HussTags.Chaser, "trigger" )
+			.WithoutTags( HussTags.Runner, HussTags.Chaser )
 			.Run();
 
 		return !tr.Hit;
