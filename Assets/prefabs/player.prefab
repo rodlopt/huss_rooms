@@ -44,8 +44,8 @@
           "go": "89e874c5-b323-4b33-a05e-b722f0ee1a5d"
         },
         "DeaccelerationTime": 0,
-        "DuckedHeight": 36,
-        "DuckedSpeed": 70,
+        "DuckedHeight": 72,
+        "DuckedSpeed": 110,
         "EnableFootstepSounds": true,
         "EnablePressing": true,
         "EyeDistanceFromTop": 8,
