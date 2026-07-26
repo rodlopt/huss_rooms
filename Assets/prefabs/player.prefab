@@ -133,7 +133,7 @@
         "BaseSpeed": 250,
         "CameraTurnSpeed": 2000,
         "Deceleration": 900,
-        "Grip": 11,
+        "Grip": 3,
         "GroundAngle": 45,
         "GroundDamping": 0.3,
         "IceFriction": 0.05,
