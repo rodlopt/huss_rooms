@@ -152,6 +152,10 @@ public sealed class HussCamera : Component, ICameraModifier
 			position = tr.EndPosition;
 		}
 
+		cam.WorldTransform = cam.WorldTransform
+			.WithPosition( position )
+			.WithRotation( rotation );
+
 		view.Position = position;
 		view.Rotation = rotation;
 		view.FieldOfView = Preferences.FieldOfView;
