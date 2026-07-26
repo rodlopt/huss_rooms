@@ -20,10 +20,6 @@ public sealed class Nametag : Component
 	[Property, Group( "Colours" )] public Color RunnerColor { get; set; } = "White";
 	[Property, Group( "Colours" )] public Color ChaserColor { get; set; } = "White";
 
-	/// <summary>
-	/// Past this the tag switches off. Stops distant names cluttering the screen.
-	/// </summary>
-	[Property, Group( "Visibility" )] public float MaxDistance { get; set; } = 1600.0f;
 
 	/// <summary>
 	/// Whether you see your own name. Roblox shows it, so this defaults on - it's hidden in
@@ -87,12 +83,6 @@ public sealed class Nametag : Component
 
 			// First person puts our own head where the camera is.
 			if ( _player.Camera.IsValid() && _player.Camera.IsFirstPerson )
-				return false;
-		}
-
-		if ( MaxDistance > 0 && Scene.Camera.IsValid() )
-		{
-			if ( Scene.Camera.WorldPosition.Distance( WorldPosition ) > MaxDistance )
 				return false;
 		}
 
