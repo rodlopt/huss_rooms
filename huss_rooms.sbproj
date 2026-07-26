@@ -1,11 +1,11 @@
 {
   "Title": "Hussrooms",
   "Type": "game",
-  "Org": "local",
+  "Org": "dumbshit",
   "Ident": "huss_rooms",
   "Schema": 1,
   "IncludeSourceFiles": false,
-  "Resources": null,
+  "Resources": "",
   "PackageReferences": [],
   "EditorReferences": null,
   "Mounts": null,
@@ -28,6 +28,8 @@
       "Keyboard": false,
       "VR": false,
       "Gamepad": false
-    }
+    },
+    "LaunchMode": "Normal",
+    "DedicatedServerStartupScene": "scenes/hussrooms.scene"
   }
 }
