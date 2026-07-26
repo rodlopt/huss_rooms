@@ -259,7 +259,8 @@ public sealed class HussPlayer : Component, Component.INetworkSpawn
 		var taunt = Taunts[tauntIndex];
 		if ( taunt is null ) return;
 
-		Sound.Play( taunt, WorldPosition );
+		var snd = Sound.Play( taunt );
+		snd.FollowParent = true;
 	}
 
 	void OnTeamChanged( HussTeam before, HussTeam after )
