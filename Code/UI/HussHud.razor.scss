@@ -6,7 +6,7 @@ HussHud
 	right: 0;
 	bottom: 0;
 	pointer-events: none;
-	font-family: Poppins;
+	font-family: Londrina Solid;
 	color: white;
 
 	&.hidden
@@ -25,7 +25,7 @@ HussHud
 
 		.role-name
 		{
-			font-size: 26px;
+			font-size: 60px;
 			font-weight: 800;
 			letter-spacing: 2px;
 		}
@@ -146,7 +146,8 @@ HussHud
 		bottom: 20px;
 		right: 32px;
 		flex-direction: row;
-		font-size: 13px;
+		font-size: 16px;
+      font-weight: 300;
 		opacity: 0.5;
 
 		span
