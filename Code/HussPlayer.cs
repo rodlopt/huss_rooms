@@ -213,6 +213,8 @@ public partial class HussPlayer : Component, Component.INetworkSpawn
 		if ( Controller.IsValid() )
 			Controller.UseInputControls = !IsDowned && !InputLocked;
 
+		UpdatePropInteraction();
+
 		if ( IsDowned || InputLocked ) return;
 
 		// Input.Pressed is per frame, so it has to be read here rather than in FixedUpdate.
