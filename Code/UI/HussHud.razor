@@ -80,6 +80,17 @@
 				<span class="key-label"> shift lock</span>
 			</span>
 			<span>
+				@if (TauntGlyph is not null)
+				{
+					<img src="@TauntGlyph" class="glyph" />
+				}
+				else
+				{
+					<b>F</b>
+				}
+				<span class="key-label"> taunt</span>
+			</span>
+			<span>
 				@if (TransformGlyph is not null)
 				{
 					<img src="@TransformGlyph" class="glyph" />
@@ -129,12 +140,14 @@
 		Player?.IsDowned,
 		System.HashCode.Combine(Player?.IsSprinting, Player?.IsExhausted, ShiftLocked));
 
-	string SprintGlyph => Input.GetGlyph( "Run", InputGlyphSize.Small, true ).ResourcePath ?? "";
+	string SprintGlyph => Input.GetGlyph("Run", InputGlyphSize.Medium, true).ResourcePath ?? "";
 	string RotateGlyph => Player.IsValid() && Player.Camera.IsValid()
-		? Input.GetGlyph( Player.Camera.RotateBodyButton ?? "Attack2", InputGlyphSize.Small, true ).ResourcePath ?? ""
+		? Input.GetGlyph(Player.Camera.RotateBodyButton ?? "Attack2", InputGlyphSize.Medium, true).ResourcePath ?? ""
 		: "";
 	string ShiftLockGlyph => Player.IsValid() && Player.Camera.IsValid()
-		? Input.GetGlyph( Player.Camera.ShiftLockButton ?? "ShiftLock", InputGlyphSize.Small, true ).ResourcePath ?? ""
+		? Input.GetGlyph(Player.Camera.ShiftLockButton ?? "ShiftLock", InputGlyphSize.Medium, true).ResourcePath ?? ""
 		: "";
-	string TransformGlyph => Input.GetGlyph( "Transform", InputGlyphSize.Small, true ).ResourcePath ?? "";
+	
+	string TauntGlyph => Input.GetGlyph("Taunt", InputGlyphSize.Medium, true).ResourcePath ?? "";
+	string TransformGlyph => Input.GetGlyph("Transform", InputGlyphSize.Medium, true).ResourcePath ?? "";
 }
