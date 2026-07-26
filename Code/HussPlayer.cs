@@ -246,6 +246,8 @@ public sealed class HussPlayer : Component, Component.INetworkSpawn
 	[Rpc.Host]
 	public void RequestTaunt()
 	{
+		if ( IsChaser )
+			return;
 		if ( Network.Owner != Rpc.Caller ) return;
 		if ( Taunts is null || Taunts.Length == 0 ) return;
 
