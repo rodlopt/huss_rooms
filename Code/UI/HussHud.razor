@@ -47,7 +47,7 @@
 
 		<div class="keys">
 			<span>
-				@if (SprintGlyph is not null)
+				@if (!string.IsNullOrEmpty( SprintGlyph ))
 				{
 					<img src="@SprintGlyph" class="glyph" />
 				}
@@ -58,7 +58,7 @@
 				<span class="key-label"> Sprint</span>
 			</span>
 			<span>
-				@if (RotateGlyph is not null)
+				@if (!string.IsNullOrEmpty( RotateGlyph ))
 				{
 					<img src="@RotateGlyph" class="glyph" />
 				}
@@ -69,7 +69,7 @@
 				<span class="key-label"> Turn With camera</span>
 			</span>
 			<span>
-				@if (ShiftLockGlyph is not null)
+				@if (!string.IsNullOrEmpty( ShiftLockGlyph ))
 				{
 					<img src="@ShiftLockGlyph" class="glyph" />
 				}
@@ -80,7 +80,7 @@
 				<span class="key-label"> ShiftLock</span>
 			</span>
 			<span>
-				@if (TauntGlyph is not null)
+				@if (!string.IsNullOrEmpty( TauntGlyph ))
 				{
 					<img src="@TauntGlyph" class="glyph" />
 				}
@@ -91,7 +91,7 @@
 				<span class="key-label"> Taunt</span>
 			</span>
 			<span>
-				@if (TransformGlyph is not null)
+				@if (!string.IsNullOrEmpty( TransformGlyph ))
 				{
 					<img src="@TransformGlyph" class="glyph" />
 				}
@@ -119,7 +119,6 @@
 			if (!Player.IsValid()) return "";
 			if (Player.IsChaser) return "unused";
 			if (Player.IsExhausted) return "spent";
-			if (Player.IsSprinting) return "burning";
 
 			return "";
 		}

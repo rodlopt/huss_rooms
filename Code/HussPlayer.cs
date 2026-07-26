@@ -93,6 +93,8 @@ public sealed class HussPlayer : Component, Component.INetworkSpawn
 	[Property, Group( "Chaser" )] public float ChaserBaseSpeed { get; set; } = 260.0f;
 	[Property, Group( "Chaser" )] public float ChaserMaxSpeed { get; set; } = 410.0f;
 
+	[Property, Group( "Sound" )] public SoundEvent[] Taunts { get; set; } = Array.Empty<SoundEvent>();
+
 	/// <summary>
 	/// True while the body should be pinned to the camera instead of facing its own movement.
 	/// Written by <see cref="HussCamera"/> on the owner; synced so remote players turn the
@@ -201,6 +203,9 @@ public sealed class HussPlayer : Component, Component.INetworkSpawn
 		if ( IsDowned || InputLocked ) return;
 
 		// Input.Pressed is per frame, so it has to be read here rather than in FixedUpdate.
+		if ( Input.Pressed( "Taunt" ) )
+			RequestTaunt();
+
 		if ( Input.Pressed( "Transform" ) )
 			RequestTeam( IsChaser ? HussTeam.Runner : HussTeam.Chaser );
 	}
@@ -236,6 +241,25 @@ public sealed class HussPlayer : Component, Component.INetworkSpawn
 		Team = team;
 
 		_timeSinceTeamSwitch = 0;
+	}
+
+	[Rpc.Host]
+	public void RequestTaunt()
+	{
+		if ( Network.Owner != Rpc.Caller ) return;
+		if ( Taunts is null || Taunts.Length == 0 ) return;
+
+		BroadcastTaunt( Random.Shared.Next( Taunts.Length ) );
+	}
+
+	[Rpc.Broadcast]
+	void BroadcastTaunt( int tauntIndex )
+	{
+		if ( Taunts is null || tauntIndex < 0 || tauntIndex >= Taunts.Length ) return;
+		var taunt = Taunts[tauntIndex];
+		if ( taunt is null ) return;
+
+		Sound.Play( taunt, WorldPosition );
 	}
 
 	void OnTeamChanged( HussTeam before, HussTeam after )

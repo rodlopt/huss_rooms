@@ -94,11 +94,6 @@ HussHud
 			transition: width 0.1s linear, background-color 0.2s ease-out;
 		}
 
-		&.burning .fill
-		{
-			background-color: #ffd166;
-		}
-
 		&.spent .fill
 		{
 			background-color: #ff5470;
