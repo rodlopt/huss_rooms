@@ -46,17 +46,32 @@
 		}
 
 		<div class="keys">
-			<span>
-				@if ( !string.IsNullOrEmpty( PropMenuGlyph ) )
-				{
-					<img src="@PropMenuGlyph" class="glyph"/>
-				}
-				else
-				{
-					<b>Q</b>
-				}
-				<span class="key-label"> Props</span>
-			</span>
+			@if ( Player.IsRunner )
+			{
+				<span>
+					@if ( !string.IsNullOrEmpty( PropMenuGlyph ) )
+					{
+						<img src="@PropMenuGlyph" class="glyph"/>
+					}
+					else
+					{
+						<b>Q</b>
+					}
+					<span class="key-label"> Props</span>
+				</span>
+				<span>
+					@if ( !string.IsNullOrEmpty( TauntGlyph ) )
+					{
+						<img src="@TauntGlyph" class="glyph"/>
+					}
+					else
+					{
+						<b>F</b>
+					}
+					<span class="key-label"> Taunt</span>
+				</span>
+			}
+
 			<span>
 				@if ( !string.IsNullOrEmpty( SprintGlyph ) )
 				{
@@ -89,17 +104,6 @@
 					<b>ALT</b>
 				}
 				<span class="key-label"> ShiftLock</span>
-			</span>
-			<span>
-				@if ( !string.IsNullOrEmpty( TauntGlyph ) )
-				{
-					<img src="@TauntGlyph" class="glyph"/>
-				}
-				else
-				{
-					<b>F</b>
-				}
-				<span class="key-label"> Taunt</span>
 			</span>
 			<span>
 				@if ( !string.IsNullOrEmpty( TransformGlyph ) )

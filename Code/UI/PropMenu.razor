@@ -4,7 +4,7 @@
 @inherits PanelComponent
 @namespace Sandbox
 
-<root class="@( Show ? "visible" : "" )">
+<root class="@( Show && Player.IsRunner ? "visible" : "" )">
 	<div class="title">
 		<label>Props</label>
 		<div style="flex-grow: 1"></div>
@@ -23,6 +23,8 @@
 
 @code
 {
+	private HussPlayer Player => HussPlayer.Local;
+
 	public bool Show { get; set; } = false;
 
 	public struct SpawnableProp
@@ -35,7 +37,7 @@
 
 	private void OnPropClicked( GameObject prefab )
 	{
-		HussPlayer.Local?.TrySpawnProp( prefab );
+		Player?.TrySpawnProp( prefab );
 	}
 
 	protected override void OnUpdate()
