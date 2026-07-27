@@ -192,25 +192,6 @@
             }
           ],
           "StartServer": true
-        },
-        {
-          "__type": "Hussrooms.HussLobby",
-          "__guid": "01b90507-f7dd-4b7f-a340-09dc53a4e2f9",
-          "__enabled": true,
-          "Flags": 0,
-          "OnComponentDestroy": null,
-          "OnComponentDisabled": null,
-          "OnComponentEnabled": null,
-          "OnComponentFixedUpdate": null,
-          "OnComponentStart": null,
-          "OnComponentUpdate": null,
-          "BotPrefab": {
-            "_type": "gameobject",
-            "prefab": "prefabs/bot.prefab"
-          },
-          "DefaultBotsEnabled": true,
-          "DefaultBotLimit": 4,
-          "MaxBotLimit": 16
         }
       ],
       "Children": [
@@ -597,19 +578,6 @@
               }
             }
           ]
-        },
-        {
-          "__type": "Hussrooms.UI.Scoreboard",
-          "__guid": "1a380f62-1894-4c05-8ac4-e1de826ac003",
-          "__enabled": true,
-          "Flags": 0,
-          "OnComponentDestroy": null,
-          "OnComponentDisabled": null,
-          "OnComponentEnabled": null,
-          "OnComponentFixedUpdate": null,
-          "OnComponentStart": null,
-          "OnComponentUpdate": null,
-          "OpenButton": "Score"
         }
       ],
       "Children": []
@@ -1803,11 +1771,11 @@
       "Description": "Runners vs chasers on very slippery floors."
     },
     "NavMesh": {
-      "Enabled": true,
+      "Enabled": false,
       "IncludeStaticBodies": true,
       "IncludeKeyframedBodies": true,
       "EditorAutoUpdate": true,
-      "AgentHeight": 72,
+      "AgentHeight": 64,
       "AgentRadius": 16,
       "AgentStepSize": 18,
       "AgentMaxSlope": 40,

@@ -62,6 +62,22 @@ public partial class HussPlayer : Component, Component.INetworkSpawn
 	}
 
 	/// <summary>
+	/// True when this pawn is driven by <see cref="ChaserBot"/> rather than a person.
+	///
+	/// Bots are owned by the host, which means they are not proxies on the host's machine -
+	/// so without this they'd happily read the host's own keyboard and mouse.
+	/// </summary>
+	[Sync( SyncFlags.FromHost )]
+	public bool IsBot { get; set; }
+
+	/// <summary>
+	/// Whether this player is allowed to spawn bots. Only the host hands this out - see
+	/// <see cref="HussLobby"/>.
+	/// </summary>
+	[Sync( SyncFlags.FromHost )]
+	public bool CanSpawnBots { get; set; }
+
+	/// <summary>
 	/// Catches the cases OnNetworkSpawn doesn't: a pawn that was never network spawned
 	/// (running the scene with no lobby), or one whose owner arrived late.
 	/// </summary>
@@ -211,7 +227,9 @@ public partial class HussPlayer : Component, Component.INetworkSpawn
 
 	protected override void OnUpdate()
 	{
-		if ( IsProxy ) return;
+		// Bots aren't proxies on the host, so they'd read the host's input if we let them
+		// through here. ChaserBot drives them instead.
+		if ( IsProxy || IsBot ) return;
 
 		// Recomputed every frame from both reasons we'd take the controls away, so it can't
 		// get stuck on if they overlap.
@@ -238,7 +256,7 @@ public partial class HussPlayer : Component, Component.INetworkSpawn
 			UpdateRespawn();
 		}
 
-		if ( IsProxy ) return;
+		if ( IsProxy || IsBot ) return;
 
 		UpdateStamina();
 		UpdateSpeed();

@@ -1,0 +1,123 @@
+@using Sandbox;
+@using Sandbox.UI;
+@using Hussrooms;
+@namespace Hussrooms.UI
+@inherits PanelComponent
+
+<root class="@(IsOpen ? "open" : "closed")">
+
+	<div class="board">
+
+		<div class="head">
+			<div class="title">LOBBY</div>
+			<div class="count">@Players.Count() in game</div>
+		</div>
+
+		<div class="rows">
+			@foreach ( var player in Players )
+			{
+				<div class="row @(player.IsChaser ? "chaser" : "runner") @(player == HussPlayer.Local ? "you" : "")">
+
+					<div class="name">
+						@player.DisplayName
+						@if ( player.IsBot )
+						{
+							<span class="tag bot">BOT</span>
+						}
+						@if ( player.CanSpawnBots && !player.IsBot )
+						{
+							<span class="tag trusted">BOTS</span>
+						}
+					</div>
+
+					<div class="role">@(player.IsChaser ? "CHASER" : "RUNNER")</div>
+
+					<div class="state">
+						@if ( player.IsDowned )
+						{
+							<span class="downed">DOWN</span>
+						}
+						else if ( player.IsSafe )
+						{
+							<span class="safe">SAFE</span>
+						}
+					</div>
+
+					<div class="actions">
+						@if ( IsHost && !player.IsBot && player != HussPlayer.Local )
+						{
+							<div class="promote @(player.CanSpawnBots ? "on" : "")" @onclick=@( () => TogglePermission( player ) )>
+								@(player.CanSpawnBots ? "REVOKE BOTS" : "ALLOW BOTS")
+							</div>
+						}
+					</div>
+
+				</div>
+			}
+		</div>
+
+		@if ( IsHost )
+		{
+			<div class="hint">Host: click a player to let them spawn bots.</div>
+		}
+
+	</div>
+
+</root>
+
+@code
+{
+	/// <summary>Held, not toggled - same as every other scoreboard.</summary>
+	[Property, InputAction] public string OpenButton { get; set; } = "Score";
+
+	public bool IsOpen { get; private set; }
+
+	static bool IsHost => Networking.IsHost;
+
+	/// <summary>
+	/// Bots included on purpose - if one is chasing you it should be on the board.
+	/// </summary>
+	IEnumerable<HussPlayer> Players => Scene is null
+		? Enumerable.Empty<HussPlayer>()
+		: Scene.GetAllComponents<HussPlayer>()
+			.OrderByDescending( x => !x.IsBot )
+			.ThenBy( x => x.DisplayName );
+
+	protected override void OnUpdate()
+	{
+		var open = !string.IsNullOrWhiteSpace( OpenButton ) && Input.Down( OpenButton );
+
+		if ( open == IsOpen ) return;
+
+		IsOpen = open;
+		StateHasChanged();
+	}
+
+	void TogglePermission( HussPlayer player )
+	{
+		if ( !IsHost || !player.IsValid() ) return;
+		if ( HussLobby.Current is not HussLobby lobby ) return;
+
+		lobby.RequestSetCanSpawnBots( player, !player.CanSpawnBots );
+	}
+
+	protected override int BuildHash()
+	{
+		var hash = new System.HashCode();
+
+		hash.Add( IsOpen );
+		hash.Add( IsHost );
+
+		foreach ( var player in Players )
+		{
+			hash.Add( player.DisplayName );
+			hash.Add( player.Team );
+			hash.Add( player.IsDowned );
+			hash.Add( player.IsSafe );
+			hash.Add( player.CanSpawnBots );
+			hash.Add( player.IsBot );
+		}
+
+		return hash.ToHashCode();
+	}
+}

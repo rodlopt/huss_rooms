@@ -1,0 +1,171 @@
+Scoreboard
+{
+	position: absolute;
+	top: 0;
+	left: 0;
+	right: 0;
+	bottom: 0;
+	align-items: center;
+	justify-content: center;
+	font-family: Poppins;
+	color: white;
+	transition: opacity 0.1s ease-out;
+
+	&.closed
+	{
+		opacity: 0;
+		pointer-events: none;
+	}
+
+	&.open
+	{
+		opacity: 1;
+		pointer-events: all;
+	}
+
+	.board
+	{
+		flex-direction: column;
+		width: 760px;
+		max-height: 70%;
+		padding: 24px;
+		border-radius: 10px;
+		background-color: rgba( #0b0d12, 0.9 );
+		border: 1px solid rgba( white, 0.08 );
+	}
+
+	.head
+	{
+		flex-direction: row;
+		align-items: baseline;
+		justify-content: space-between;
+		margin-bottom: 16px;
+
+		.title
+		{
+			font-size: 26px;
+			font-weight: 900;
+			letter-spacing: 5px;
+		}
+
+		.count
+		{
+			font-size: 13px;
+			opacity: 0.45;
+		}
+	}
+
+	.rows
+	{
+		flex-direction: column;
+		overflow-y: scroll;
+	}
+
+	.row
+	{
+		flex-direction: row;
+		align-items: center;
+		padding: 9px 14px;
+		margin-bottom: 5px;
+		border-radius: 5px;
+		background-color: rgba( white, 0.04 );
+		border-left: 3px solid #6ec6ff;
+
+		&.chaser
+		{
+			border-left-color: #ff5470;
+		}
+
+		&.you
+		{
+			background-color: rgba( white, 0.11 );
+		}
+
+		.name
+		{
+			flex-grow: 1;
+			flex-direction: row;
+			align-items: center;
+			font-size: 16px;
+			font-weight: 600;
+		}
+
+		.role
+		{
+			width: 90px;
+			font-size: 12px;
+			letter-spacing: 2px;
+			opacity: 0.5;
+		}
+
+		.state
+		{
+			width: 70px;
+			font-size: 12px;
+			font-weight: 800;
+			letter-spacing: 1px;
+
+			.downed { color: #ff5470; }
+			.safe { color: #7ce38b; }
+		}
+
+		.actions
+		{
+			width: 150px;
+			justify-content: flex-end;
+		}
+	}
+
+	.tag
+	{
+		margin-left: 8px;
+		padding: 2px 7px;
+		border-radius: 3px;
+		font-size: 10px;
+		font-weight: 800;
+		letter-spacing: 1px;
+
+		&.bot
+		{
+			background-color: rgba( #ffd166, 0.2 );
+			color: #ffd166;
+		}
+
+		&.trusted
+		{
+			background-color: rgba( #7ce38b, 0.2 );
+			color: #7ce38b;
+		}
+	}
+
+	.promote
+	{
+		padding: 5px 11px;
+		border-radius: 4px;
+		font-size: 11px;
+		font-weight: 800;
+		letter-spacing: 1px;
+		background-color: rgba( white, 0.08 );
+		color: rgba( white, 0.7 );
+		transition: background-color 0.1s ease-out;
+
+		&:hover
+		{
+			background-color: rgba( white, 0.18 );
+			color: white;
+		}
+
+		&.on
+		{
+			background-color: rgba( #7ce38b, 0.22 );
+			color: #7ce38b;
+		}
+	}
+
+	.hint
+	{
+		margin-top: 14px;
+		font-size: 12px;
+		opacity: 0.35;
+	}
+}
