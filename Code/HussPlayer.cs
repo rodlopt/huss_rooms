@@ -252,8 +252,7 @@ public partial class HussPlayer : Component, Component.INetworkSpawn
 	[Rpc.Host]
 	public void RequestTeam( HussTeam team )
 	{
-		if ( IsSafe ) return;
-		// Only the player that owns this pawn gets to change its team.
+		if ( IsSafe && team == HussTeam.Chaser ) return;
 		if ( Network.Owner != Rpc.Caller ) return;
 		if ( IsDowned ) return;
 
