@@ -234,7 +234,11 @@ public partial class HussPlayer : Component, Component.INetworkSpawn
 		// Recomputed every frame from both reasons we'd take the controls away, so it can't
 		// get stuck on if they overlap.
 		if ( Controller.IsValid() )
-			Controller.UseInputControls = !IsDowned && !InputLocked;
+		{
+			var controlsEnabled = !IsDowned && !InputLocked;
+			Controller.UseInputControls = controlsEnabled;
+			Controller.UseLookControls = controlsEnabled;
+		}
 
 		UpdatePropInteraction();
 
@@ -538,7 +542,10 @@ public partial class HussPlayer : Component, Component.INetworkSpawn
 	{
 		if ( !Controller.IsValid() ) return;
 
-		// UseInputControls is driven from OnUpdate - see InputLocked.
+		// Control flags are driven from OnUpdate - see InputLocked. Disable look
+		// immediately on the owner so the downed camera cannot receive one last input tick.
+		if ( !IsProxy && !IsBot )
+			Controller.UseLookControls = !after && !InputLocked;
 
 		// WishVelocity is owner authoritative - proxies must not write to it.
 		if ( after && !IsProxy )

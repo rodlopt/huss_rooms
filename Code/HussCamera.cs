@@ -62,7 +62,11 @@ public sealed class HussCamera : Component, ICameraModifier
 	float _wantedDistance;
 	float _distance;
 	float _shoulder;
+	Vector3 _lastViewPosition;
+	Rotation _lastViewRotation;
+	float _lastViewFieldOfView;
 	bool _holdingRotate;
+	bool _hasLastView;
 	HussPlayer _player;
 
 	protected override void OnAwake()
@@ -90,15 +94,15 @@ public sealed class HussCamera : Component, ICameraModifier
 				ShiftLock = !ShiftLock;
 
 			_holdingRotate = !string.IsNullOrWhiteSpace( RotateBodyButton ) && Input.Down( RotateBodyButton );
+
+			_distance = _distance.LerpTo( _wantedDistance, (Time.Delta * ZoomSmoothing).Clamp( 0, 1 ) );
+			_shoulder = _shoulder.LerpTo( ShiftLock && !IsFirstPerson ? ShoulderOffset : 0.0f,
+				(Time.Delta * ShoulderSmoothing).Clamp( 0, 1 ) );
 		}
 		else
 		{
 			_holdingRotate = false;
 		}
-
-		_distance = _distance.LerpTo( _wantedDistance, (Time.Delta * ZoomSmoothing).Clamp( 0, 1 ) );
-		_shoulder = _shoulder.LerpTo( ShiftLock && !IsFirstPerson ? ShoulderOffset : 0.0f,
-			(Time.Delta * ShoulderSmoothing).Clamp( 0, 1 ) );
 
 		// Published so the body rotation - which runs on every machine, not just ours - knows
 		// whether we're pinned to the camera.
@@ -131,6 +135,12 @@ public sealed class HussCamera : Component, ICameraModifier
 		if ( !cam.RenderExcludeTags.Contains( "viewer" ) )
 			cam.RenderExcludeTags.Add( "viewer" );
 
+		if ( _player.IsValid() && _player.IsDowned && _hasLastView )
+		{
+			ApplyView( cam, ref view, _lastViewPosition, _lastViewRotation, _lastViewFieldOfView );
+			return;
+		}
+
 		var rotation = Controller.EyeAngles.ToRotation();
 		var pivot = Controller.EyeTransform.Position
 			+ rotation.Up * PivotOffset.z
@@ -152,12 +162,29 @@ public sealed class HussCamera : Component, ICameraModifier
 			position = tr.EndPosition;
 		}
 
+		var fieldOfView = Preferences.FieldOfView;
+		ApplyView( cam, ref view, position, rotation, fieldOfView );
+
+		_lastViewPosition = position;
+		_lastViewRotation = rotation;
+		_lastViewFieldOfView = fieldOfView;
+		_hasLastView = true;
+	}
+
+	static void ApplyView(
+		CameraComponent cam,
+		ref CameraView view,
+		Vector3 position,
+		Rotation rotation,
+		float fieldOfView
+	)
+	{
 		cam.WorldTransform = cam.WorldTransform
 			.WithPosition( position )
 			.WithRotation( rotation );
 
 		view.Position = position;
 		view.Rotation = rotation;
-		view.FieldOfView = Preferences.FieldOfView;
+		view.FieldOfView = fieldOfView;
 	}
 }
