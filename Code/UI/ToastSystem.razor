@@ -9,8 +9,6 @@
 		@foreach ( var toast in _toasts )
 		{
 			<div @key="toast.RenderKey" class="toast @toast.KindClass">
-				<div class="accent"></div>
-				<div class="shine"></div>
 				<div class="icon-wrap">
 					<i>@toast.Icon</i>
 				</div>
