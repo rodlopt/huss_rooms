@@ -64,7 +64,7 @@
           "ClearFlags": "All",
           "EnablePostProcessing": true,
           "FieldOfView": 70,
-          "FovAxis": "Horizontal",
+          "FovAxis": "Vertical",
           "IsMainCamera": true,
           "OnComponentDestroy": null,
           "OnComponentDisabled": null,
@@ -1660,20 +1660,6 @@
               "Static": true,
               "Surface": null,
               "SurfaceVelocity": "0,0,0"
-            },
-            {
-              "__type": "Hussrooms.TagFilterCollider",
-              "__guid": "7d770fbd-c96c-4a81-823d-7f827b512246",
-              "__enabled": true,
-              "Flags": 0,
-              "BarrierTag": "saferoom",
-              "OnComponentDestroy": null,
-              "OnComponentDisabled": null,
-              "OnComponentEnabled": null,
-              "OnComponentFixedUpdate": null,
-              "OnComponentStart": null,
-              "OnComponentUpdate": null,
-              "PassThroughTag": "runner"
             }
           ],
           "Children": []
