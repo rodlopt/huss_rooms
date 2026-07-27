@@ -27,12 +27,29 @@ PropMenu {
     }
 
     .close {
-      cursor: pointer;
-      padding: 0px 20px;
       background-color: #ff0000;
+      padding: 0px 20px;
 
       &:hover {
         background-color: #570000;
+      }
+    }
+
+    .delete {
+      &:hover {
+        background-color: #595959;
+      }
+    }
+
+    .action-button {
+      cursor: pointer;
+      color: white;
+      justify-content: center;
+      align-items: center;
+
+      i {
+        width: 70px;
+        height: 50px;
       }
     }
   }

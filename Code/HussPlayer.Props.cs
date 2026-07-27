@@ -8,6 +8,7 @@ public partial class HussPlayer
 {
 	[Property, Group( "Prop Spawner" )] public int MaxProps { get; set; } = 15;
 	[Property, Group( "Prop Spawner" )] public float PropSpawnCooldown { get; set; } = 1.0f;
+	[Property, Group( "Prop Spawner" )] public float DeleteCooldown { get; set; } = 1.0f;
 	[Property, Group( "Prop Spawner" )] public float SpawnRange { get; set; } = 40f;
 
 	[Property, Group( "Prop Interaction" )]
@@ -19,11 +20,46 @@ public partial class HussPlayer
 	[Property, Group( "Prop Interaction" )]
 	public float ThrowForce { get; set; } = 600f;
 
-	private List<GameObject> _spawnedProps = new();
+	public List<GameObject> SpawnedProps = new();
 	private TimeSince _timeSinceLastPropSpawn = 1.0f;
+	private TimeSince _timeSinceDelete = 1.0f;
 
 	private GameObject _heldProp;
 	private Rigidbody _heldRigidbody;
+
+	public bool DeleteLastProp()
+	{
+		if ( IsProxy ) return false;
+
+		if ( _timeSinceDelete < DeleteCooldown )
+		{
+			Log.Info( "Can't delete yet" );
+			return false;
+		}
+
+		SpawnedProps.RemoveAll( x => !x.IsValid() );
+
+		if ( SpawnedProps.Count == 0 )
+			return false;
+
+		var lastPropIndex = SpawnedProps.Count - 1;
+		var propToDestroy = SpawnedProps[lastPropIndex];
+
+		if ( _heldProp == propToDestroy )
+		{
+			DropHeldProp();
+		}
+
+		if ( propToDestroy.IsValid() )
+		{
+			propToDestroy.Destroy();
+		}
+
+		_timeSinceDelete = 0;
+
+		SpawnedProps.RemoveAt( lastPropIndex );
+		return true;
+	}
 
 	public bool TrySpawnProp( GameObject prefab )
 	{
@@ -36,8 +72,8 @@ public partial class HussPlayer
 			return false;
 		}
 
-		_spawnedProps.RemoveAll( x => !x.IsValid() );
-		if ( _spawnedProps.Count >= MaxProps )
+		SpawnedProps.RemoveAll( x => !x.IsValid() );
+		if ( SpawnedProps.Count >= MaxProps )
 		{
 			Log.Warning( $"Prop limit reached! ({MaxProps} max)" );
 			return false;
@@ -66,7 +102,7 @@ public partial class HussPlayer
 		var spawned = prefab.Clone( spawnPos, spawnRot );
 		spawned.NetworkSpawn();
 
-		_spawnedProps.Add( spawned );
+		SpawnedProps.Add( spawned );
 		_timeSinceLastPropSpawn = 0;
 		return true;
 	}

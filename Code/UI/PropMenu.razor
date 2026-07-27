@@ -8,7 +8,10 @@
 	<div class="title">
 		<label>Props</label>
 		<div style="flex-grow: 1"></div>
-		<div class="close" @onclick=@( () => Close() )>X</div>
+		<div class="action-button" tooltip="Delete last prop" @onclick=@( () => Player.DeleteLastProp() )>
+			<i>delete</i>
+		</div>
+		<div class="action-button close" @onclick=@( () => Close() )>X</div>
 	</div>
 	<div class="container">
 		@foreach ( var prop in SpawnableProps )
