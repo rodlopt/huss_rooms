@@ -1,0 +1,185 @@
+@using Sandbox;
+@using Sandbox.UI;
+@using System.Globalization;
+@namespace Hussrooms.UI
+@inherits PanelComponent
+
+<root>
+	<div class="toast-stack">
+		@foreach ( var toast in _toasts )
+		{
+			<div @key="toast.RenderKey" class="toast @toast.KindClass">
+				<div class="accent"></div>
+				<div class="shine"></div>
+				<div class="icon-wrap">
+					<i>@toast.Icon</i>
+				</div>
+				<div class="copy">
+					<div class="title">@toast.Title</div>
+					<div class="message">@toast.Message</div>
+				</div>
+				@if ( toast.Count > 1 )
+				{
+					<div class="count">@toast.Count</div>
+				}
+				<div class="life">
+					<div class="life-fill" style="@DurationStyle( toast )"></div>
+				</div>
+			</div>
+		}
+	</div>
+</root>
+
+@code
+{
+	public enum ToastKind
+	{
+		Info,
+		Success,
+		Warning,
+		Error
+	}
+
+	[Property, Range( 1, 8 )] public int MaxVisible { get; set; } = 4;
+
+	[Property, Range( 1.0f, 10.0f )] public float DefaultDuration { get; set; } = 3.2f;
+
+	static ToastSystem Current { get; set; }
+
+	readonly List<ToastEntry> _toasts = new();
+	int _nextId;
+	int _revision;
+
+	protected override void OnAwake()
+	{
+		Current = this;
+	}
+
+	public static void Info( string message, string title = "Heads up", float duration = -1.0f )
+	{
+		Show( title, message, ToastKind.Info, duration );
+	}
+
+	public static void Success( string message, string title = "Done", float duration = -1.0f )
+	{
+		Show( title, message, ToastKind.Success, duration );
+	}
+
+	public static void Warning( string message, string title = "Not so fast", float duration = -1.0f )
+	{
+		Show( title, message, ToastKind.Warning, duration );
+	}
+
+	public static void Error( string message, string title = "Can't do that", float duration = -1.0f )
+	{
+		Show( title, message, ToastKind.Error, duration );
+	}
+
+	public static void Show(
+		string title,
+		string message,
+		ToastKind kind = ToastKind.Info,
+		float duration = -1.0f
+	)
+	{
+		if ( !Current.IsValid() ) return;
+		if ( string.IsNullOrWhiteSpace( message ) ) return;
+
+		Current.AddToast( title, message, kind, duration );
+	}
+
+	void AddToast( string title, string message, ToastKind kind, float duration )
+	{
+		duration = duration > 0.0f ? duration : DefaultDuration;
+		duration = MathF.Max( 0.75f, duration );
+
+		var repeated = _toasts.LastOrDefault( toast =>
+			toast.Kind == kind &&
+			toast.Title == title &&
+			toast.Message == message );
+
+		if ( repeated is not null )
+		{
+			repeated.Count++;
+			repeated.Age = 0;
+			repeated.Duration = duration;
+			repeated.Revision++;
+		}
+		else
+		{
+			while ( _toasts.Count >= Math.Max( 1, MaxVisible ) )
+				_toasts.RemoveAt( 0 );
+
+			_toasts.Add( new ToastEntry( ++_nextId, title, message, kind, duration ) );
+		}
+
+		_revision++;
+		StateHasChanged();
+	}
+
+	protected override void OnUpdate()
+	{
+		var removed = _toasts.RemoveAll( toast => toast.Age >= toast.Duration );
+		if ( removed == 0 ) return;
+
+		_revision++;
+		StateHasChanged();
+	}
+
+	protected override int BuildHash()
+	{
+		return HashCode.Combine( _revision, _toasts.Count );
+	}
+
+	static string DurationStyle( ToastEntry toast )
+	{
+		var duration = toast.Duration.ToString( "0.###", CultureInfo.InvariantCulture );
+		return $"animation-duration: {duration}s;";
+	}
+
+	sealed class ToastEntry
+	{
+		public int Id { get; }
+		public string Title { get; }
+		public string Message { get; }
+		public ToastKind Kind { get; }
+		public float Duration { get; set; }
+		public int Count { get; set; } = 1;
+		public int Revision { get; set; }
+		public RealTimeSince Age { get; set; }
+
+		public string RenderKey => $"{Id}:{Revision}";
+
+		public string KindClass => Kind switch
+		{
+			ToastKind.Success => "success",
+			ToastKind.Warning => "warning",
+			ToastKind.Error => "error",
+			_ => "info"
+		};
+
+		public string Icon => Kind switch
+		{
+			ToastKind.Success => "check_circle",
+			ToastKind.Warning => "warning",
+			ToastKind.Error => "cancel",
+			_ => "info"
+		};
+
+		public ToastEntry(
+			int id,
+			string title,
+			string message,
+			ToastKind kind,
+			float duration
+		)
+		{
+			Id = id;
+			Title = title;
+			Message = message;
+			Kind = kind;
+			Duration = duration;
+			Age = 0;
+		}
+	}
+}
