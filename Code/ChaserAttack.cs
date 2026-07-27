@@ -186,7 +186,6 @@ public sealed class ChaserAttack : Component
 		if ( !other.IsValid() ) return false;
 		if ( other == Player ) return false;
 		if ( other.IsDowned ) return false;
-		if ( other.IsSafe ) return false;
 
 		return true;
 	}

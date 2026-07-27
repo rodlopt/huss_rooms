@@ -188,12 +188,17 @@ public partial class HussPlayer : Component, Component.INetworkSpawn
 		_move = GetComponent<MoveModeIcy>( true );
 		_attack = GetComponent<ChaserAttack>( true );
 		Camera = GetComponent<HussCamera>( true );
+
+		// Reset safe zone counter early to prevent stale values from previous play sessions
+		_safeZones = 0;
 	}
 
 	protected override void OnStart()
 	{
 		if ( !IsProxy )
 			Stamina = MaxStamina;
+
+		IsSafe = false;
 
 		ApplyTeam();
 	}
@@ -247,6 +252,7 @@ public partial class HussPlayer : Component, Component.INetworkSpawn
 	[Rpc.Host]
 	public void RequestTeam( HussTeam team )
 	{
+		if ( IsSafe ) return;
 		// Only the player that owns this pawn gets to change its team.
 		if ( Network.Owner != Rpc.Caller ) return;
 		if ( IsDowned ) return;
@@ -403,7 +409,6 @@ public partial class HussPlayer : Component, Component.INetworkSpawn
 	public bool TakeHit( HussPlayer attacker )
 	{
 		if ( !Networking.IsHost ) return false;
-		if ( IsDowned || IsSafe ) return false;
 
 		Hits++;
 
@@ -548,6 +553,8 @@ public partial class HussPlayer : Component, Component.INetworkSpawn
 		if ( !Networking.IsHost ) return;
 
 		_safeZones = Math.Max( 0, _safeZones + (inside ? 1 : -1) );
+		var wasSafe = IsSafe;
 		IsSafe = _safeZones > 0;
+		Log.Info( $"SetInSafeZone({inside}): zones={_safeZones}, IsSafe changed {wasSafe}->{IsSafe}" );
 	}
 }

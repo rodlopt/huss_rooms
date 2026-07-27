@@ -18,7 +18,9 @@ public sealed class SafeZone : Component, Component.ITriggerListener
 		// HussPlayer.IsSafe is host authoritative.
 		if ( !Networking.IsHost ) return;
 
-		FindPlayer( other )?.SetInSafeZone( true );
+		var player = FindPlayer( other );
+		Log.Info( $"SafeZone.OnTriggerEnter: player={player?.DisplayName ?? "none"}" );
+		player?.SetInSafeZone( true );
 	}
 
 	public void OnTriggerExit( Collider other )
@@ -27,7 +29,9 @@ public sealed class SafeZone : Component, Component.ITriggerListener
 
 		// Deliberately unconditional to mirror the enter above. If we filtered by team here,
 		// someone who transformed while inside would leak a reference and never stop being safe.
-		FindPlayer( other )?.SetInSafeZone( false );
+		var player = FindPlayer( other );
+		Log.Info( $"SafeZone.OnTriggerExit: player={player?.DisplayName ?? "none"}" );
+		player?.SetInSafeZone( false );
 	}
 
 	/// <summary>
