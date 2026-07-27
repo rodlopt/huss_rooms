@@ -5,7 +5,10 @@
   "Decibels": 70,
   "SelectionMode": "Random",
   "Sounds": [
-    "sounds/step1.vsnd"
+    "sounds/carpetwalk1.vsnd",
+    "sounds/carpetwalk2.vsnd",
+    "sounds/carpetwalk3.vsnd",
+    "sounds/carpetwalk4.vsnd"
   ],
   "OcclusionEnabled": true,
   "Occlusion": true,
