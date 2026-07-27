@@ -29,17 +29,6 @@
 			</div>
 		}
 
-
-		@if ( Player.IsSafe )
-		{
-			<div class="banner safe">SAFE ROOM</div>
-		}
-
-		@if ( Player.IsDowned )
-		{
-			<div class="banner downed">DOWNED &mdash; GETTING BACK UP</div>
-		}
-
 		@if ( ShiftLocked )
 		{
 			<div class="shiftlock">shiftlocked</div>
@@ -150,8 +139,6 @@
 		Player?.Team,
 		Player?.HitsRemaining,
 		(int)((Player?.StaminaFraction ?? 0) * 50),
-		Player?.IsSafe,
-		Player?.IsDowned,
 		System.HashCode.Combine( Player?.IsSprinting, Player?.IsExhausted, ShiftLocked ) );
 
 	string SprintGlyph => Input.GetGlyph( "Run", InputGlyphSize.Medium, true ).ResourcePath ?? "";

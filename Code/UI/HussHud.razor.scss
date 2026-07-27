@@ -97,14 +97,6 @@ HussHud {
     font-weight: 800;
     letter-spacing: 4px;
     text-shadow: 0px 2px 8px rgba(black, 0.8);
-
-    &.safe {
-      color: #7ce38b;
-    }
-
-    &.downed {
-      color: #ff5470;
-    }
   }
 
   .shiftlock {

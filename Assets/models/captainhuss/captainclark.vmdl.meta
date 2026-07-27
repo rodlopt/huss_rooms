@@ -1,0 +1,23 @@
+{
+  "publish": {
+    "Enabled": true,
+    "ProjectConfig": {
+      "Title": "Captainclark",
+      "Type": "model",
+      "Org": "dumbshit",
+      "Ident": "captainclark",
+      "Schema": 0,
+      "IncludeSourceFiles": false,
+      "Resources": null,
+      "PackageReferences": null,
+      "EditorReferences": null,
+      "Mounts": null,
+      "IsStandaloneOnly": false,
+      "Metadata": {
+        "SingleAssetSource": "models/captainhuss/captainclark.vmdl",
+        "ParentPackage": "dumbshit.huss_rooms",
+        "AssetLicense": ""
+      }
+    }
+  }
+}
