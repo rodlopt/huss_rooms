@@ -8,7 +8,6 @@ public partial class HussPlayer
 {
 	[Property, Group( "Prop Spawner" )] public int MaxProps { get; set; } = 15;
 	[Property, Group( "Prop Spawner" )] public float PropSpawnCooldown { get; set; } = 1.0f;
-	[Property, Group( "Prop Spawner" )] public float DeleteCooldown { get; set; } = 1.0f;
 	[Property, Group( "Prop Spawner" )] public float SpawnRange { get; set; } = 40f;
 
 	[Property, Group( "Prop Interaction" )]
@@ -22,7 +21,6 @@ public partial class HussPlayer
 
 	public List<GameObject> SpawnedProps = new();
 	private TimeSince _timeSinceLastPropSpawn = 1.0f;
-	private TimeSince _timeSinceDelete = 1.0f;
 
 	private GameObject _heldProp;
 	private Rigidbody _heldRigidbody;
@@ -30,12 +28,6 @@ public partial class HussPlayer
 	public bool DeleteLastProp()
 	{
 		if ( IsProxy ) return false;
-
-		if ( _timeSinceDelete < DeleteCooldown )
-		{
-			Log.Info( "Can't delete yet" );
-			return false;
-		}
 
 		SpawnedProps.RemoveAll( x => !x.IsValid() );
 
@@ -55,7 +47,6 @@ public partial class HussPlayer
 			propToDestroy.Destroy();
 		}
 
-		_timeSinceDelete = 0;
 
 		SpawnedProps.RemoveAt( lastPropIndex );
 		return true;
@@ -96,10 +87,7 @@ public partial class HussPlayer
 		if ( HussLobby.Current is not HussLobby lobby ) return false;
 		if ( !HussLobby.LocalHasOwnBot ) return false;
 
-		if ( _timeSinceDelete < DeleteCooldown ) return false;
-
 		lobby.RequestRemoveOwnBot();
-		_timeSinceDelete = 0;
 
 		return true;
 	}
