@@ -196,6 +196,7 @@
         "MaxProps": 15,
         "MaxStamina": 100,
         "KnockdownRecoveryTime": 2.5,
+        "MaxCaptainClarkBots": 5,
         "OnComponentDestroy": null,
         "OnComponentDisabled": null,
         "OnComponentEnabled": null,

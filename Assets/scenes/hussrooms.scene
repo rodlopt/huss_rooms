@@ -576,6 +576,13 @@
                 "_type": "gameobject",
                 "prefab": "prefabs/props/shelf.prefab"
               }
+            },
+            {
+              "Name": "Captain Clark Bot",
+              "Prop": {
+                "_type": "gameobject",
+                "prefab": "prefabs/bots/captain_clark_bot.prefab"
+              }
             }
           ]
         }
@@ -1771,12 +1778,12 @@
       "Description": "Runners vs chasers on very slippery floors."
     },
     "NavMesh": {
-      "Enabled": false,
+      "Enabled": true,
       "IncludeStaticBodies": true,
       "IncludeKeyframedBodies": true,
       "EditorAutoUpdate": true,
-      "AgentHeight": 64,
-      "AgentRadius": 16,
+      "AgentHeight": 112,
+      "AgentRadius": 23,
       "AgentStepSize": 18,
       "AgentMaxSlope": 40,
       "ExcludedBodies": "",

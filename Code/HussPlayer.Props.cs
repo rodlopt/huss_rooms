@@ -7,6 +7,7 @@ namespace Hussrooms;
 public partial class HussPlayer
 {
 	[Property, Group( "Prop Spawner" )] public int MaxProps { get; set; } = 15;
+	[Property, Group( "Prop Spawner" )] public int MaxCaptainClarkBots { get; set; } = 5;
 	[Property, Group( "Prop Spawner" )] public float PropSpawnCooldown { get; set; } = 1.0f;
 	[Property, Group( "Prop Spawner" )] public float DeleteCooldown { get; set; } = 1.0f;
 	[Property, Group( "Prop Spawner" )] public float SpawnRange { get; set; } = 40f;
@@ -23,6 +24,7 @@ public partial class HussPlayer
 	public List<GameObject> SpawnedProps = new();
 	private TimeSince _timeSinceLastPropSpawn = 1.0f;
 	private TimeSince _timeSinceDelete = 1.0f;
+	private TimeSince _timeSinceLastCaptainClarkBotSpawn = 1.0f;
 
 	private GameObject _heldProp;
 	private Rigidbody _heldRigidbody;
@@ -52,7 +54,11 @@ public partial class HussPlayer
 
 		if ( propToDestroy.IsValid() )
 		{
-			propToDestroy.Destroy();
+			var bot = propToDestroy.GetComponent<CaptainClarkBot>( true );
+			if ( bot.IsValid() )
+				RequestDeleteCaptainClarkBot( propToDestroy );
+			else
+				propToDestroy.Destroy();
 		}
 
 		_timeSinceDelete = 0;
@@ -99,12 +105,91 @@ public partial class HussPlayer
 			spawnPos = WorldPosition + WorldRotation.Forward * 100f;
 		}
 
+		// NPCs are host authoritative. Regular physics props keep their existing
+		// owner-authoritative spawn path.
+		if ( prefab.GetComponent<CaptainClarkBot>( true ).IsValid() )
+		{
+			RequestSpawnCaptainClarkBot( spawnPos, spawnRot );
+			_timeSinceLastPropSpawn = 0;
+			return true;
+		}
+
 		var spawned = prefab.Clone( spawnPos, spawnRot );
 		spawned.NetworkSpawn();
 
 		SpawnedProps.Add( spawned );
 		_timeSinceLastPropSpawn = 0;
 		return true;
+	}
+
+	[Rpc.Host]
+	void RequestSpawnCaptainClarkBot( Vector3 requestedPosition, Rotation requestedRotation )
+	{
+		if ( Network.Owner != Rpc.Caller ) return;
+		if ( !IsRunner || IsDowned || IsSafe ) return;
+		if ( _timeSinceLastCaptainClarkBotSpawn < PropSpawnCooldown ) return;
+
+		// Never trust an arbitrary prefab or position supplied by the client. The
+		// asset path is fixed, and the requested point must be beside this player.
+		var maximumSpawnDistance = SpawnRange + 128.0f;
+		if ( requestedPosition.Distance( WorldPosition ) > maximumSpawnDistance ) return;
+
+		var botCount = Scene.GetAllComponents<CaptainClarkBot>()
+			.Count( bot => bot.Spawner == this );
+
+		if ( botCount >= MaxCaptainClarkBots ) return;
+
+		var spawnPosition = Scene.NavMesh.GetClosestPoint( requestedPosition, 256.0f )
+			?? requestedPosition;
+
+		var spawned = GameObject.Clone(
+			CaptainClarkBot.PrefabPath,
+			new Transform( spawnPosition, requestedRotation ),
+			startEnabled: false
+		);
+
+		if ( !spawned.IsValid() ) return;
+
+		var brain = spawned.GetComponent<CaptainClarkBot>( true );
+		if ( !brain.IsValid() )
+		{
+			spawned.Destroy();
+			return;
+		}
+
+		brain.Spawner = this;
+
+		if ( !spawned.NetworkSpawn( true, null ) )
+		{
+			spawned.Destroy();
+			return;
+		}
+
+		_timeSinceLastCaptainClarkBotSpawn = 0;
+		TrackSpawnedCaptainClarkBot( spawned );
+	}
+
+	[Rpc.Owner( NetFlags.HostOnly )]
+	void TrackSpawnedCaptainClarkBot( GameObject spawned )
+	{
+		if ( !spawned.IsValid() ) return;
+		if ( !spawned.GetComponent<CaptainClarkBot>( true ).IsValid() ) return;
+
+		SpawnedProps.RemoveAll( item => !item.IsValid() );
+		if ( !SpawnedProps.Contains( spawned ) )
+			SpawnedProps.Add( spawned );
+	}
+
+	[Rpc.Host]
+	void RequestDeleteCaptainClarkBot( GameObject spawned )
+	{
+		if ( Network.Owner != Rpc.Caller ) return;
+		if ( !spawned.IsValid() ) return;
+
+		var bot = spawned.GetComponent<CaptainClarkBot>( true );
+		if ( !bot.IsValid() || bot.Spawner != this ) return;
+
+		spawned.Destroy();
 	}
 
 	private void UpdatePropInteraction()
