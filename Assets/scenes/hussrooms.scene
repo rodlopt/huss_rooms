@@ -40,96 +40,6 @@
       "Children": []
     },
     {
-      "__guid": "bcaf9eb5-a38f-4a1d-86d3-a0199349d7c2",
-      "__version": 2,
-      "Flags": 0,
-      "Name": "Sun",
-      "Position": "0,0,0",
-      "Rotation": "-0.0729314983,0.482239604,0.130543306,0.863182724",
-      "Scale": "1,1,1",
-      "Tags": "light_directional,light",
-      "Enabled": false,
-      "NetworkMode": 2,
-      "NetworkFlags": 0,
-      "NetworkOrphaned": 0,
-      "NetworkTransmit": true,
-      "OwnerTransfer": 1,
-      "Components": [
-        {
-          "__type": "Sandbox.DirectionalLight",
-          "__guid": "5a6fbc19-fd09-4d3d-a404-da4921b6a056",
-          "__enabled": true,
-          "Flags": 0,
-          "ContactShadows": true,
-          "Contribution": "Diffuse, Specular, Transmissive",
-          "FogMode": "Enabled",
-          "FogStrength": 1,
-          "LightColor": "0.86,0.89,1,1",
-          "OnComponentDestroy": null,
-          "OnComponentDisabled": null,
-          "OnComponentEnabled": null,
-          "OnComponentFixedUpdate": null,
-          "OnComponentStart": null,
-          "OnComponentUpdate": null,
-          "ShadowBias": 0.0005,
-          "ShadowCascadeCount": 4,
-          "ShadowCascadeSplitRatio": 0.91,
-          "ShadowHardness": 0,
-          "Shadows": true,
-          "SkyColor": "0.13,0.15,0.22,1",
-          "Visualizer": {}
-        },
-        {
-          "__type": "Sandbox.AmbientLight",
-          "__guid": "d0a36c8a-6eca-4c3a-80bd-5472892681f0",
-          "__enabled": true,
-          "Flags": 0,
-          "Color": "0.16,0.17,0.22,1",
-          "OnComponentDestroy": null,
-          "OnComponentDisabled": null,
-          "OnComponentEnabled": null,
-          "OnComponentFixedUpdate": null,
-          "OnComponentStart": null,
-          "OnComponentUpdate": null
-        }
-      ],
-      "Children": []
-    },
-    {
-      "__guid": "93f89c88-6a57-4247-835e-5ab65c9fa87e",
-      "__version": 2,
-      "Flags": 0,
-      "Name": "2D Skybox",
-      "Position": "0,0,0",
-      "Rotation": "0,0,0,1",
-      "Scale": "1,1,1",
-      "Tags": "skybox",
-      "Enabled": false,
-      "NetworkMode": 2,
-      "NetworkFlags": 0,
-      "NetworkOrphaned": 0,
-      "NetworkTransmit": true,
-      "OwnerTransfer": 1,
-      "Components": [
-        {
-          "__type": "Sandbox.SkyBox2D",
-          "__guid": "d2e13403-3196-4d87-a7dd-95a451d2e6e0",
-          "__enabled": true,
-          "Flags": 0,
-          "OnComponentDestroy": null,
-          "OnComponentDisabled": null,
-          "OnComponentEnabled": null,
-          "OnComponentFixedUpdate": null,
-          "OnComponentStart": null,
-          "OnComponentUpdate": null,
-          "SkyIndirectLighting": true,
-          "SkyMaterial": "materials/skybox/skybox_day_01.vmat",
-          "Tint": "0.55,0.58,0.7,1"
-        }
-      ],
-      "Children": []
-    },
-    {
       "__guid": "cecfd705-c1bc-4d8f-aafa-dab077f6b164",
       "__version": 2,
       "Flags": 0,
@@ -651,6 +561,20 @@
               "Prop": {
                 "_type": "gameobject",
                 "prefab": "prefabs/props/cooker.prefab"
+              }
+            },
+            {
+              "Name": "Drawer",
+              "Prop": {
+                "_type": "gameobject",
+                "prefab": "prefabs/props/drawer.prefab"
+              }
+            },
+            {
+              "Name": "Shelf",
+              "Prop": {
+                "_type": "gameobject",
+                "prefab": "prefabs/props/shelf.prefab"
               }
             }
           ]
