@@ -79,7 +79,13 @@ public sealed class HussCamera : Component, ICameraModifier
 
 	protected override void OnUpdate()
 	{
-		if ( IsProxy ) return;
+		// The viewer tag is networked. Clear it locally on proxy bodies every frame so a
+		// remote player's first-person state can never make their model invisible to us.
+		if ( IsProxy )
+		{
+			UpdateBodyVisibility();
+			return;
+		}
 
 		var locked = _player.IsValid() && (_player.InputLocked || _player.IsDowned);
 
@@ -114,7 +120,8 @@ public sealed class HussCamera : Component, ICameraModifier
 
 	/// <summary>
 	/// PlayerController normally owns the "viewer" tag, but it skips that entirely when its own
-	/// camera is turned off, so we do it. Tagging the body 'viewer' hides it from our own view.
+	/// camera is turned off, so we do it. Only the locally controlled first-person body may retain
+	/// the tag; proxy bodies explicitly clear it so other players remain visible.
 	/// </summary>
 	void UpdateBodyVisibility()
 	{
