@@ -221,7 +221,7 @@
           },
           "DefaultBotLimit": 4,
           "DefaultBotsEnabled": true,
-          "MaxBotLimit": 16,
+          "MaxBotLimit": 200,
           "MaxSpawnDistance": 400,
           "OnComponentDestroy": null,
           "OnComponentDisabled": null,
@@ -229,7 +229,7 @@
           "OnComponentFixedUpdate": null,
           "OnComponentStart": null,
           "OnComponentUpdate": null,
-          "StartingBots": 1
+          "StartingBots": 0
         }
       ],
       "Children": [

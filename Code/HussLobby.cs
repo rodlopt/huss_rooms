@@ -12,7 +12,7 @@ namespace Hussrooms;
 /// Per player permission is different: <see cref="HussPlayer.CanSpawnBots"/> lives on the
 /// pawn, which is network spawned, so that one is a normal host-authoritative sync.
 /// </summary>
-[Icon( "settings" ), Group( "Hussrooms" ), Title( "Huss Lobby" )]
+[Icon( "settings" ), Group( "Hussrooms" ), Title( "Huss Game Manager" )]
 public sealed class HussLobby : Component, Component.INetworkListener
 {
 	/// <summary>
@@ -42,19 +42,22 @@ public sealed class HussLobby : Component, Component.INetworkListener
 	public int DefaultBotLimit { get; set; } = 4;
 
 	/// <summary>The most the limit can ever be raised to.</summary>
-	[Property, Group( "Bots" )] public int MaxBotLimit { get; set; } = 16;
+	[Property, Group( "Bots" )]
+	public int MaxBotLimit { get; set; } = 16;
 
 	/// <summary>
 	/// Bots put out automatically once the game is up, so a fresh lobby already has something
 	/// hunting you instead of an empty map.
 	/// </summary>
-	[Property, Group( "Bots" )] public int StartingBots { get; set; } = 1;
+	[Property, Group( "Bots" )]
+	public int StartingBots { get; set; } = 1;
 
 	/// <summary>
 	/// How far from the person asking a bot may be placed. Anything further falls back to a
 	/// spawn point, so a request can't drop a chaser on the far side of the map.
 	/// </summary>
-	[Property, Group( "Bots" )] public float MaxSpawnDistance { get; set; } = 400.0f;
+	[Property, Group( "Bots" )]
+	public float MaxSpawnDistance { get; set; } = 400.0f;
 
 	/// <summary>Live on every machine. Host authoritative - change it through <see cref="RequestSettings"/>.</summary>
 	public bool BotsEnabled { get; private set; } = true;
@@ -222,7 +225,7 @@ public sealed class HussLobby : Component, Component.INetworkListener
 		var where = FindSpawnPoint();
 
 		if ( PlayerFor( Rpc.Caller ) is HussPlayer caller &&
-			 caller.WorldPosition.Distance( position ) <= MaxSpawnDistance )
+		     caller.WorldPosition.Distance( position ) <= MaxSpawnDistance )
 		{
 			where = new Transform( position, Rotation.Identity );
 		}
