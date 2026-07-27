@@ -229,7 +229,7 @@
           "OnComponentFixedUpdate": null,
           "OnComponentStart": null,
           "OnComponentUpdate": null,
-          "StartingBots": 0
+          "StartingBots": 1
         }
       ],
       "Children": [
