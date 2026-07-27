@@ -4,7 +4,7 @@
 @namespace Hussrooms.UI
 @inherits PanelComponent
 
-<root class="@(IsOpen ? "open" : "closed")">
+<root class="@( IsOpen ? "open" : "closed" )">
 
 	<div class="board">
 
@@ -15,15 +15,15 @@
 			@if ( CanManageBots )
 			{
 				<div class="bots">
-					<span class="bots-count">@BotCount bot@(BotCount == 1 ? "" : "s")</span>
+					<span class="bots-count">@BotCount bot@( BotCount == 1 ? "" : "s" )</span>
 
-					<span class="switch @(BotsEnabled ? "on" : "")" @onclick=@ToggleBots>
+					@*<span class="switch @(BotsEnabled ? "on" : "")" @onclick=@ToggleBots>
 						@(BotsEnabled ? "BOTS ON" : "BOTS OFF")
 					</span>
 
 					<span class="clear @(BotCount == 0 ? "disabled" : "")" @onclick=@ClearBots>
 						CLEAR ALL
-					</span>
+					</span>*@
 				</div>
 			}
 		</div>
@@ -31,7 +31,8 @@
 		<div class="rows">
 			@foreach ( var player in Players )
 			{
-				<div class="row @(player.IsChaser ? "chaser" : "runner") @(player == HussPlayer.Local ? "you" : "")">
+				<div
+					class="row @( player.IsChaser ? "chaser" : "runner" ) @( player == HussPlayer.Local ? "you" : "" )">
 
 					<div class="name">
 						@player.DisplayName
@@ -45,7 +46,6 @@
 						}
 					</div>
 
-					<div class="role">@(player.IsChaser ? "CHASER" : "RUNNER")</div>
 
 					<div class="state">
 						@if ( player.IsDowned )
@@ -61,11 +61,14 @@
 					<div class="actions">
 						@if ( IsHost && !player.IsBot && player != HussPlayer.Local )
 						{
-							<div class="promote @(player.CanSpawnBots ? "on" : "")" @onclick=@( () => TogglePermission( player ) )>
-								@(player.CanSpawnBots ? "REVOKE BOTS" : "ALLOW BOTS")
+							<div class="promote @( player.CanSpawnBots ? "on" : "" )"
+							     @onclick=@( () => TogglePermission( player ) )>
+								@( player.CanSpawnBots ? "REVOKE BOTS" : "ALLOW BOTS" )
 							</div>
 						}
 					</div>
+					<div class="role">@( player.IsChaser ? "CAPTAIN CLARK" : "CLARK" )</div>
+
 
 				</div>
 			}
@@ -83,7 +86,8 @@
 @code
 {
 	/// <summary>Held, not toggled - same as every other scoreboard.</summary>
-	[Property, InputAction] public string OpenButton { get; set; } = "Score";
+	[Property, InputAction]
+	public string OpenButton { get; set; } = "Score";
 
 	public bool IsOpen { get; private set; }
 
