@@ -625,20 +625,6 @@
           ]
         },
         {
-          "__type": "Hussrooms.UI.ToastSystem",
-          "__guid": "b9f5969a-4803-4901-9681-aed7f7937ed3",
-          "__enabled": true,
-          "Flags": 0,
-          "DefaultDuration": 3.2,
-          "MaxVisible": 4,
-          "OnComponentDestroy": null,
-          "OnComponentDisabled": null,
-          "OnComponentEnabled": null,
-          "OnComponentFixedUpdate": null,
-          "OnComponentStart": null,
-          "OnComponentUpdate": null
-        },
-        {
           "__type": "Hussrooms.UI.Scoreboard",
           "__guid": "1a380f62-1894-4c05-8ac4-e1de826ac003",
           "__enabled": true,
@@ -650,6 +636,20 @@
           "OnComponentStart": null,
           "OnComponentUpdate": null,
           "OpenButton": "Score"
+        },
+        {
+          "__type": "Hussrooms.UI.ToastSystem",
+          "__guid": "72134ffd-4ada-4bcb-a502-5c1fc151747b",
+          "__enabled": true,
+          "Flags": 0,
+          "DefaultDuration": 3.2,
+          "MaxVisible": 4,
+          "OnComponentDestroy": null,
+          "OnComponentDisabled": null,
+          "OnComponentEnabled": null,
+          "OnComponentFixedUpdate": null,
+          "OnComponentStart": null,
+          "OnComponentUpdate": null
         }
       ],
       "Children": []
