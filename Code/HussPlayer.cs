@@ -244,6 +244,9 @@ public partial class HussPlayer : Component, Component.INetworkSpawn
 		if ( Input.Pressed( "Taunt" ) )
 			RequestTaunt();
 
+		if ( Input.Pressed( "Undo" ) )
+			DeleteLastProp();
+			
 		if ( Input.Pressed( "Transform" ) )
 			RequestTeam( IsChaser ? HussTeam.Runner : HussTeam.Chaser );
 	}
