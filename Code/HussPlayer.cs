@@ -417,6 +417,7 @@ public partial class HussPlayer : Component, Component.INetworkSpawn
 	{
 		// Ragdoll first: it copies its pose off the live renderer, and setting IsDowned takes
 		// that renderer away.
+		_recoverFromKnockdown = false;
 		SpawnRagdoll( Controller.IsValid() ? Controller.Velocity : Vector3.Zero );
 
 		_respawnAt = RespawnDelay;
@@ -465,6 +466,13 @@ public partial class HussPlayer : Component, Component.INetworkSpawn
 	{
 		if ( !IsDowned ) return;
 		if ( !_respawnAt ) return;
+
+		if ( _recoverFromKnockdown )
+		{
+			_recoverFromKnockdown = false;
+			IsDowned = false;
+			return;
+		}
 
 		Hits = 0;
 		IsDowned = false;

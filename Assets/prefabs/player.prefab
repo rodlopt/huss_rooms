@@ -195,6 +195,7 @@
         "HoldDistance": 80,
         "MaxProps": 15,
         "MaxStamina": 100,
+        "KnockdownRecoveryTime": 2.5,
         "OnComponentDestroy": null,
         "OnComponentDisabled": null,
         "OnComponentEnabled": null,
@@ -209,6 +210,7 @@
         "RunnerMaxSpeed": 440,
         "RunnerModel": "models/clark/clark.vmdl",
         "SpawnRange": 40,
+        "SlipSpeedThreshold": 250,
         "SprintScale": 1.45,
         "StaminaDrain": 26,
         "StaminaRegen": 16,
@@ -222,6 +224,7 @@
           "sounds/stayincharacter.sound"
         ],
         "TeamSwitchCooldown": 1,
+        "ThrownPropSpeedThreshold": 400,
         "ThrowForce": 600
       },
       {
@@ -596,8 +599,6 @@
   "MenuPath": null,
   "MenuIcon": null,
   "DontBreakAsTemplate": false,
-  "__references": [
-    "cannedburgers.impactsounds#114511"
-  ],
+  "__references": [],
   "__version": 2
 }
