@@ -325,6 +325,9 @@ public partial class HussPlayer : Component, Component.INetworkSpawn
 
 		if ( _attack.IsValid() )
 			_attack.Enabled = chaser;
+
+		if ( chaser )  Controller.BodyHeight = 112f; else Controller.BodyHeight = 72f; 
+		
 	}
 
 	/// <summary>
