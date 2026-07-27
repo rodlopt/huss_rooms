@@ -6,17 +6,17 @@ namespace Hussrooms;
 
 public partial class HussPlayer
 {
-	[Property, Group( "Prop Spawner" )] public int MaxProps { get; set; } = 15;
-	[Property, Group( "Prop Spawner" )] public float PropSpawnCooldown { get; set; } = 1.0f;
-	[Property, Group( "Prop Spawner" )] public float SpawnRange { get; set; } = 40f;
+	[Property, Group("Prop Spawner")] public int MaxProps { get; set; } = 15;
+	[Property, Group("Prop Spawner")] public float PropSpawnCooldown { get; set; } = 1.0f;
+	[Property, Group("Prop Spawner")] public float SpawnRange { get; set; } = 40f;
 
-	[Property, Group( "Prop Interaction" )]
+	[Property, Group("Prop Interaction")]
 	public float GrabRange { get; set; } = 200f;
 
-	[Property, Group( "Prop Interaction" )]
+	[Property, Group("Prop Interaction")]
 	public float HoldDistance { get; set; } = 80f;
 
-	[Property, Group( "Prop Interaction" )]
+	[Property, Group("Prop Interaction")]
 	public float ThrowForce { get; set; } = 600f;
 
 	public List<GameObject> SpawnedProps = new();
@@ -27,28 +27,54 @@ public partial class HussPlayer
 
 	public bool DeleteLastProp()
 	{
-		if ( IsProxy ) return false;
+		if (IsProxy) return false;
 
-		SpawnedProps.RemoveAll( x => !x.IsValid() );
+		SpawnedProps.RemoveAll(x => !x.IsValid());
 
-		if ( SpawnedProps.Count == 0 )
+		if (SpawnedProps.Count == 0)
 			return false;
 
 		var lastPropIndex = SpawnedProps.Count - 1;
 		var propToDestroy = SpawnedProps[lastPropIndex];
 
-		if ( _heldProp == propToDestroy )
+		if (_heldProp == propToDestroy)
 		{
 			DropHeldProp();
 		}
 
-		if ( propToDestroy.IsValid() )
+		if (propToDestroy.IsValid())
 		{
 			propToDestroy.Destroy();
 		}
 
 
-		SpawnedProps.RemoveAt( lastPropIndex );
+		SpawnedProps.RemoveAt(lastPropIndex);
+		return true;
+	}
+	public bool DeleteAllProps()
+	{
+		if (IsProxy) return false;
+
+		SpawnedProps.RemoveAll(x => !x.IsValid());
+
+		if (SpawnedProps.Count == 0)
+			return false;
+
+		if (_heldProp.IsValid() && SpawnedProps.Contains(_heldProp))
+		{
+			DropHeldProp();
+		}
+
+		for (int i = SpawnedProps.Count - 1; i >= 0; i--)
+		{
+			var propToDestroy = SpawnedProps[i];
+			if (propToDestroy.IsValid())
+			{
+				propToDestroy.Destroy();
+			}
+		}
+
+		SpawnedProps.Clear();
 		return true;
 	}
 
@@ -63,15 +89,15 @@ public partial class HussPlayer
 	/// </remarks>
 	public bool TrySpawnBot()
 	{
-		if ( IsProxy || IsDowned || InputLocked ) return false;
-		if ( !HussLobby.LocalCanSpawnBots ) return false;
+		if (IsProxy || IsDowned || InputLocked) return false;
+		if (!HussLobby.LocalCanSpawnBots) return false;
 
-		if ( HussLobby.Current is not HussLobby lobby ) return false;
-		if ( lobby.AtBotLimit ) return false;
+		if (HussLobby.Current is not HussLobby lobby) return false;
+		if (lobby.AtBotLimit) return false;
 
-		if ( _timeSinceLastPropSpawn < PropSpawnCooldown ) return false;
+		if (_timeSinceLastPropSpawn < PropSpawnCooldown) return false;
 
-		lobby.RequestSpawnBotAt( GetPropSpawnPosition() );
+		lobby.RequestSpawnBotAt(GetPropSpawnPosition());
 		_timeSinceLastPropSpawn = 0;
 
 		return true;
@@ -83,9 +109,9 @@ public partial class HussPlayer
 	/// </summary>
 	public bool TryRemoveBot()
 	{
-		if ( IsProxy ) return false;
-		if ( HussLobby.Current is not HussLobby lobby ) return false;
-		if ( !HussLobby.LocalHasOwnBot ) return false;
+		if (IsProxy) return false;
+		if (HussLobby.Current is not HussLobby lobby) return false;
+		if (!HussLobby.LocalHasOwnBot) return false;
 
 		lobby.RequestRemoveOwnBot();
 
@@ -99,67 +125,67 @@ public partial class HussPlayer
 	/// </summary>
 	public Vector3 GetPropSpawnPosition()
 	{
-		if ( !Head.IsValid() )
+		if (!Head.IsValid())
 			return WorldPosition + WorldRotation.Forward * 100f;
 
 		var start = Head.WorldPosition;
 		var forward = Head.WorldRotation.Forward;
 
-		var tr = Scene.Trace.Ray( start, start + forward * SpawnRange )
-			.WithoutTags( HussTags.Runner, HussTags.Chaser, "trigger" )
+		var tr = Scene.Trace.Ray(start, start + forward * SpawnRange)
+			.WithoutTags(HussTags.Runner, HussTags.Chaser, "trigger")
 			.Run();
 
 		return tr.Hit ? tr.EndPosition : start + forward * SpawnRange;
 	}
 
-	public bool TrySpawnProp( GameObject prefab )
+	public bool TrySpawnProp(GameObject prefab)
 	{
-		if ( !prefab.IsValid() ) return false;
-		if ( IsProxy || IsDowned || InputLocked ) return false;
+		if (!prefab.IsValid()) return false;
+		if (IsProxy || IsDowned || InputLocked) return false;
 
-		if ( _timeSinceLastPropSpawn < PropSpawnCooldown )
+		if (_timeSinceLastPropSpawn < PropSpawnCooldown)
 		{
-			Log.Info( $"Prop spawn on cooldown! Wait {PropSpawnCooldown - _timeSinceLastPropSpawn:F1}s" );
+			Log.Info($"Prop spawn on cooldown! Wait {PropSpawnCooldown - _timeSinceLastPropSpawn:F1}s");
 			return false;
 		}
 
-		SpawnedProps.RemoveAll( x => !x.IsValid() );
-		if ( SpawnedProps.Count >= MaxProps )
+		SpawnedProps.RemoveAll(x => !x.IsValid());
+		if (SpawnedProps.Count >= MaxProps)
 		{
-			Log.Warning( $"Prop limit reached! ({MaxProps} max)" );
+			Log.Warning($"Prop limit reached! ({MaxProps} max)");
 			return false;
 		}
 
 		var spawnPos = GetPropSpawnPosition();
 		var spawnRot = Head.IsValid()
-			? Rotation.From( 0, Head.WorldRotation.Yaw(), 0 )
+			? Rotation.From(0, Head.WorldRotation.Yaw(), 0)
 			: Rotation.Identity;
 
-		var spawned = prefab.Clone( spawnPos, spawnRot );
+		var spawned = prefab.Clone(spawnPos, spawnRot);
 		spawned.NetworkSpawn();
 
-		SpawnedProps.Add( spawned );
+		SpawnedProps.Add(spawned);
 		_timeSinceLastPropSpawn = 0;
 		return true;
 	}
 
 	private void UpdatePropInteraction()
 	{
-		if ( IsProxy || IsDowned || InputLocked )
+		if (IsProxy || IsDowned || InputLocked)
 		{
 			DropHeldProp();
 			return;
 		}
 
-		if ( Input.Pressed( "Reload" ) && _heldProp.IsValid() )
+		if (Input.Pressed("Reload") && _heldProp.IsValid())
 		{
 			ThrowHeldProp();
 			return;
 		}
 
-		if ( Input.Down( "attack1" ) )
+		if (Input.Down("attack1"))
 		{
-			if ( !_heldProp.IsValid() )
+			if (!_heldProp.IsValid())
 			{
 				TryGrabProp();
 			}
@@ -168,7 +194,7 @@ public partial class HussPlayer
 				UpdateHeldPropTransform();
 			}
 		}
-		else if ( _heldProp.IsValid() )
+		else if (_heldProp.IsValid())
 		{
 			DropHeldProp();
 		}
@@ -177,36 +203,36 @@ public partial class HussPlayer
 	private void TryGrabProp()
 	{
 		var cam = Scene.Camera;
-		if ( !cam.IsValid() ) return;
+		if (!cam.IsValid()) return;
 
 		var interactionOrigin = GetPropInteractionOrigin();
 		var cameraPosition = cam.WorldPosition;
 		var cameraForward = cam.WorldRotation.Forward;
-		var cameraDistance = cameraPosition.Distance( interactionOrigin );
+		var cameraDistance = cameraPosition.Distance(interactionOrigin);
 
 		var tr = Scene.Trace.Ray(
 				cameraPosition,
-				cameraPosition + cameraForward * (cameraDistance + GrabRange) )
-			.Radius( 12f )
-			.IgnoreGameObjectHierarchy( GameObject.Root )
-			.WithoutTags( HussTags.Runner, HussTags.Chaser, "trigger", "player" )
+				cameraPosition + cameraForward * (cameraDistance + GrabRange))
+			.Radius(12f)
+			.IgnoreGameObjectHierarchy(GameObject.Root)
+			.WithoutTags(HussTags.Runner, HussTags.Chaser, "trigger", "player")
 			.Run();
 
-		if ( !tr.Hit || !tr.GameObject.IsValid() ) return;
+		if (!tr.Hit || !tr.GameObject.IsValid()) return;
 
 		var rb = tr.GameObject.Components.GetInParent<Rigidbody>()
-		         ?? tr.GameObject.Root.Components.Get<Rigidbody>();
+				 ?? tr.GameObject.Root.Components.Get<Rigidbody>();
 
-		if ( !rb.IsValid() ) return;
-		if ( tr.EndPosition.Distance( interactionOrigin ) > GrabRange ) return;
+		if (!rb.IsValid()) return;
+		if (tr.EndPosition.Distance(interactionOrigin) > GrabRange) return;
 
-		var reachTrace = Scene.Trace.Ray( interactionOrigin, tr.EndPosition )
-			.Radius( 8f )
-			.IgnoreGameObjectHierarchy( GameObject.Root )
-			.WithoutTags( HussTags.Runner, HussTags.Chaser, "trigger", "player" )
+		var reachTrace = Scene.Trace.Ray(interactionOrigin, tr.EndPosition)
+			.Radius(8f)
+			.IgnoreGameObjectHierarchy(GameObject.Root)
+			.WithoutTags(HussTags.Runner, HussTags.Chaser, "trigger", "player")
 			.Run();
 
-		if ( reachTrace.Hit && reachTrace.GameObject.Root != rb.GameObject.Root ) return;
+		if (reachTrace.Hit && reachTrace.GameObject.Root != rb.GameObject.Root) return;
 
 		_heldProp = rb.GameObject;
 		_heldRigidbody = rb;
@@ -218,7 +244,7 @@ public partial class HussPlayer
 
 	private void UpdateHeldPropTransform()
 	{
-		if ( !_heldProp.IsValid() || !_heldRigidbody.IsValid() )
+		if (!_heldProp.IsValid() || !_heldRigidbody.IsValid())
 		{
 			DropHeldProp();
 			return;
@@ -226,20 +252,20 @@ public partial class HussPlayer
 
 		var interactionOrigin = GetPropInteractionOrigin();
 
-		if ( _heldRigidbody.WorldPosition.Distance( interactionOrigin ) > GrabRange * 1.5f )
+		if (_heldRigidbody.WorldPosition.Distance(interactionOrigin) > GrabRange * 1.5f)
 		{
 			DropHeldProp();
 			return;
 		}
 
-		var aimDirection = GetPropAimDirection( interactionOrigin );
+		var aimDirection = GetPropAimDirection(interactionOrigin);
 		var wantedPosition = interactionOrigin + aimDirection * HoldDistance;
 
-		var holdTrace = Scene.Trace.Ray( interactionOrigin, wantedPosition )
-			.Radius( 12f )
-			.IgnoreGameObjectHierarchy( GameObject.Root )
-			.IgnoreGameObjectHierarchy( _heldProp.Root )
-			.WithoutTags( HussTags.Runner, HussTags.Chaser, "trigger", "player" )
+		var holdTrace = Scene.Trace.Ray(interactionOrigin, wantedPosition)
+			.Radius(12f)
+			.IgnoreGameObjectHierarchy(GameObject.Root)
+			.IgnoreGameObjectHierarchy(_heldProp.Root)
+			.WithoutTags(HussTags.Runner, HussTags.Chaser, "trigger", "player")
 			.Run();
 
 		var distance = holdTrace.EndPosition - _heldRigidbody.WorldPosition;
@@ -249,11 +275,11 @@ public partial class HussPlayer
 
 	private void ThrowHeldProp()
 	{
-		if ( !_heldProp.IsValid() || !_heldRigidbody.IsValid() ) return;
+		if (!_heldProp.IsValid() || !_heldRigidbody.IsValid()) return;
 
-		Input.ReleaseAction( "attack1" );
+		Input.ReleaseAction("attack1");
 
-		var throwDir = GetPropAimDirection( GetPropInteractionOrigin() );
+		var throwDir = GetPropAimDirection(GetPropInteractionOrigin());
 
 		_heldRigidbody.Gravity = true;
 		_heldRigidbody.Velocity = throwDir * (ThrowForce * 2.0f);
@@ -264,7 +290,7 @@ public partial class HussPlayer
 
 	private void DropHeldProp()
 	{
-		if ( _heldRigidbody.IsValid() )
+		if (_heldRigidbody.IsValid())
 		{
 			_heldRigidbody.Gravity = true;
 		}
@@ -275,24 +301,24 @@ public partial class HussPlayer
 
 	private Vector3 GetPropInteractionOrigin()
 	{
-		if ( Head.IsValid() )
+		if (Head.IsValid())
 			return Head.WorldPosition;
 
-		if ( Controller.IsValid() )
+		if (Controller.IsValid())
 			return Controller.EyeTransform.Position;
 
 		return WorldPosition + Vector3.Up * 64.0f;
 	}
 
-	private Vector3 GetPropAimDirection( Vector3 interactionOrigin )
+	private Vector3 GetPropAimDirection(Vector3 interactionOrigin)
 	{
 		var cam = Scene.Camera;
-		if ( !cam.IsValid() )
+		if (!cam.IsValid())
 			return WorldRotation.Forward;
 
 		var cameraPosition = cam.WorldPosition;
-		var projectionDistance = cameraPosition.Distance( interactionOrigin )
-			+ MathF.Max( GrabRange, HoldDistance );
+		var projectionDistance = cameraPosition.Distance(interactionOrigin)
+			+ MathF.Max(GrabRange, HoldDistance);
 		var aimPoint = cameraPosition + cam.WorldRotation.Forward * projectionDistance;
 
 		return (aimPoint - interactionOrigin).Normal;
