@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using Hussrooms.UI;
 using Sandbox;
 
 namespace Hussrooms;
@@ -32,7 +33,10 @@ public partial class HussPlayer
 		SpawnedProps.RemoveAll(x => !x.IsValid());
 
 		if (SpawnedProps.Count == 0)
+		{
+			ToastSystem.Warning("There are no props left to remove.", "Nothing to remove");
 			return false;
+		}
 
 		var lastPropIndex = SpawnedProps.Count - 1;
 		var propToDestroy = SpawnedProps[lastPropIndex];
@@ -49,6 +53,7 @@ public partial class HussPlayer
 
 
 		SpawnedProps.RemoveAt(lastPropIndex);
+		ToastSystem.Success("Removed your most recent prop.", "Prop removed");
 		return true;
 	}
 	public bool DeleteAllProps()
@@ -58,7 +63,12 @@ public partial class HussPlayer
 		SpawnedProps.RemoveAll(x => !x.IsValid());
 
 		if (SpawnedProps.Count == 0)
+		{
+			ToastSystem.Warning("There are no props left to remove.", "Nothing to remove");
 			return false;
+		}
+
+		var removedCount = SpawnedProps.Count;
 
 		if (_heldProp.IsValid() && SpawnedProps.Contains(_heldProp))
 		{
@@ -75,6 +85,10 @@ public partial class HussPlayer
 		}
 
 		SpawnedProps.Clear();
+		ToastSystem.Success(
+			removedCount == 1 ? "Removed 1 prop." : $"Removed {removedCount} props.",
+			"Props cleared"
+		);
 		return true;
 	}
 
@@ -90,16 +104,35 @@ public partial class HussPlayer
 	public bool TrySpawnBot()
 	{
 		if (IsProxy || IsDowned || InputLocked) return false;
-		if (!HussLobby.LocalCanSpawnBots) return false;
+		if (!HussLobby.LocalCanSpawnBots)
+		{
+			ToastSystem.Warning("Bot spawning is disabled or you do not have permission.", "Bots unavailable");
+			return false;
+		}
 
-		if (HussLobby.Current is not HussLobby lobby) return false;
-		if (lobby.AtBotLimit) return false;
+		if (HussLobby.Current is not HussLobby lobby)
+		{
+			ToastSystem.Error("The game manager is not available.", "Bot spawn failed");
+			return false;
+		}
 
-		if (_timeSinceLastPropSpawn < PropSpawnCooldown) return false;
+		if (lobby.AtBotLimit)
+		{
+			ToastSystem.Error($"The lobby already has {lobby.BotLimit} bots.", "Bot limit reached");
+			return false;
+		}
+
+		if (_timeSinceLastPropSpawn < PropSpawnCooldown)
+		{
+			var remaining = PropSpawnCooldown - _timeSinceLastPropSpawn;
+			ToastSystem.Warning($"Wait {remaining:F1}s before spawning again.", "Spawn cooling down");
+			return false;
+		}
 
 		lobby.RequestSpawnBotAt(GetPropSpawnPosition());
 		_timeSinceLastPropSpawn = 0;
 
+		ToastSystem.Success("Captain Clark joined the chase.", "Bot deployed");
 		return true;
 	}
 
@@ -110,11 +143,21 @@ public partial class HussPlayer
 	public bool TryRemoveBot()
 	{
 		if (IsProxy) return false;
-		if (HussLobby.Current is not HussLobby lobby) return false;
-		if (!HussLobby.LocalHasOwnBot) return false;
+		if (HussLobby.Current is not HussLobby lobby)
+		{
+			ToastSystem.Error("The game manager is not available.", "Bot removal failed");
+			return false;
+		}
+
+		if (!HussLobby.LocalHasOwnBot)
+		{
+			ToastSystem.Warning("You do not have a bot to remove.", "Nothing to remove");
+			return false;
+		}
 
 		lobby.RequestRemoveOwnBot();
 
+		ToastSystem.Success("Removed your most recent Captain Clark bot.", "Bot removed");
 		return true;
 	}
 
@@ -145,7 +188,9 @@ public partial class HussPlayer
 
 		if (_timeSinceLastPropSpawn < PropSpawnCooldown)
 		{
-			Log.Info($"Prop spawn on cooldown! Wait {PropSpawnCooldown - _timeSinceLastPropSpawn:F1}s");
+			var remaining = PropSpawnCooldown - _timeSinceLastPropSpawn;
+			Log.Info($"Prop spawn on cooldown! Wait {remaining:F1}s");
+			ToastSystem.Warning($"Wait {remaining:F1}s before spawning again.", "Spawn cooling down");
 			return false;
 		}
 
@@ -153,6 +198,7 @@ public partial class HussPlayer
 		if (SpawnedProps.Count >= MaxProps)
 		{
 			Log.Warning($"Prop limit reached! ({MaxProps} max)");
+			ToastSystem.Error($"Remove a prop before spawning another ({MaxProps} max).", "Prop limit reached");
 			return false;
 		}
 
@@ -166,6 +212,7 @@ public partial class HussPlayer
 
 		SpawnedProps.Add(spawned);
 		_timeSinceLastPropSpawn = 0;
+		ToastSystem.Success("Your prop was placed in the world.", "Prop spawned", 2.4f);
 		return true;
 	}
 
