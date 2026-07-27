@@ -555,6 +555,5 @@ public partial class HussPlayer : Component, Component.INetworkSpawn
 		_safeZones = Math.Max( 0, _safeZones + (inside ? 1 : -1) );
 		var wasSafe = IsSafe;
 		IsSafe = _safeZones > 0;
-		Log.Info( $"SetInSafeZone({inside}): zones={_safeZones}, IsSafe changed {wasSafe}->{IsSafe}" );
 	}
 }
