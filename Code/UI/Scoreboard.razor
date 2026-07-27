@@ -17,13 +17,13 @@
 				<div class="bots">
 					<span class="bots-count">@BotCount bot@( BotCount == 1 ? "" : "s" )</span>
 
-					@*<span class="switch @(BotsEnabled ? "on" : "")" @onclick=@ToggleBots>
+					<span class="switch @(BotsEnabled ? "on" : "")" @onclick=@ToggleBots>
 						@(BotsEnabled ? "BOTS ON" : "BOTS OFF")
 					</span>
 
 					<span class="clear @(BotCount == 0 ? "disabled" : "")" @onclick=@ClearBots>
 						CLEAR ALL
-					</span>*@
+					</span>
 				</div>
 			}
 		</div>
@@ -36,12 +36,7 @@
 
 					<div class="name">
 						@player.DisplayName
-						@if ( player.IsBot )
-						{
-							<span class="tag bot">BOT</span>
-						}
 					</div>
-
 
 					<div class="state">
 						@if ( player.IsDowned )
@@ -55,7 +50,7 @@
 					</div>
 
 					<div class="actions">
-						@if ( IsHost && !player.IsBot && player != HussPlayer.Local )
+						@if ( IsHost && player != HussPlayer.Local )
 						{
 							<div class="promote @( player.CanSpawnBots ? "on" : "" )"
 							     @onclick=@( () => TogglePermission( player ) )>
@@ -64,7 +59,6 @@
 						}
 					</div>
 					<div class="role">@( player.IsChaser ? "CAPTAIN CLARK" : "CLARK" )</div>
-
 
 				</div>
 			}
@@ -89,14 +83,11 @@
 
 	static bool IsHost => Networking.IsHost;
 
-	/// <summary>
-	/// Bots included on purpose - if one is chasing you it should be on the board.
-	/// </summary>
 	IEnumerable<HussPlayer> Players => Scene is null
 		? Enumerable.Empty<HussPlayer>()
 		: Scene.GetAllComponents<HussPlayer>()
-			.OrderByDescending( x => !x.IsBot )
-			.ThenBy( x => x.DisplayName );
+			.Where( x => !x.IsBot )
+			.OrderBy( x => x.DisplayName );
 
 	protected override void OnUpdate()
 	{
@@ -163,7 +154,6 @@
 			hash.Add( player.IsDowned );
 			hash.Add( player.IsSafe );
 			hash.Add( player.CanSpawnBots );
-			hash.Add( player.IsBot );
 		}
 
 		return hash.ToHashCode();
