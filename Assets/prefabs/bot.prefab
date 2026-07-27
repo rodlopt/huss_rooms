@@ -159,7 +159,6 @@
         "ChaserBaseSpeed": 360,
         "ChaserMaxSpeed": 510,
         "ChaserModel": "models/captainhuss/captainclark.vmdl",
-        "DeleteCooldown": 1,
         "ExhaustedRecovery": 30,
         "GrabRange": 200,
         "Head": {
@@ -410,102 +409,6 @@
             "Static": false,
             "Surface": null,
             "SurfaceVelocity": "0,0,0"
-          }
-        ],
-        "Children": []
-      },
-      {
-        "__guid": "da5372eb-bf7d-4f9b-bc3b-23e91c111684",
-        "__version": 2,
-        "Flags": 0,
-        "Name": "World",
-        "Position": "0,0,79.0976486",
-        "Rotation": "0,0,0,1",
-        "Scale": "1,1,1",
-        "Tags": "",
-        "Enabled": true,
-        "NetworkMode": 2,
-        "NetworkFlags": 0,
-        "NetworkOrphaned": 0,
-        "NetworkTransmit": true,
-        "OwnerTransfer": 1,
-        "Components": [
-          {
-            "__type": "Sandbox.TextRenderer",
-            "__guid": "3933913d-9df5-4a91-bff9-42a95bd824ce",
-            "__enabled": true,
-            "Flags": 0,
-            "__version": 2,
-            "Billboard": "Always",
-            "BlendMode": "Normal",
-            "FogStrength": 1,
-            "HorizontalAlignment": "Center",
-            "OnComponentDestroy": null,
-            "OnComponentDisabled": null,
-            "OnComponentEnabled": null,
-            "OnComponentFixedUpdate": null,
-            "OnComponentStart": null,
-            "OnComponentUpdate": null,
-            "RenderOptions": {
-              "GameLayer": true,
-              "OverlayLayer": false,
-              "BloomLayer": false,
-              "AfterUILayer": false
-            },
-            "Scale": 0.048780486,
-            "TextScope": {
-              "Text": "\n",
-              "TextColor": "1,1,1,1",
-              "FontName": "Londrina Solid",
-              "FontSize": 129.07692,
-              "FontWeight": 517,
-              "FontItalic": false,
-              "FontVariantNumeric": "Normal",
-              "LineHeight": 1,
-              "LetterSpacing": 0,
-              "WordSpacing": 0,
-              "FilterMode": "Bilinear",
-              "FontSmooth": "Auto",
-              "Outline": {
-                "Enabled": true,
-                "Size": 15,
-                "Color": "0,0,0,1"
-              },
-              "Shadow": {
-                "Enabled": false,
-                "Size": 4,
-                "Color": "0,0,0,1",
-                "Offset": "4,4"
-              },
-              "OutlineUnder": {
-                "Enabled": false,
-                "Size": 4,
-                "Color": "0,1,0,1"
-              },
-              "ShadowUnder": {
-                "Enabled": false,
-                "Size": 4,
-                "Color": "0,0,0,1",
-                "Offset": "4,4"
-              }
-            },
-            "VerticalAlignment": "Center"
-          },
-          {
-            "__type": "Nametag",
-            "__guid": "f32964db-6047-47a1-8f9e-89ef06496e61",
-            "__enabled": true,
-            "Flags": 0,
-            "ChaserColor": "1,1,1,1",
-            "FallbackName": "Player",
-            "OnComponentDestroy": null,
-            "OnComponentDisabled": null,
-            "OnComponentEnabled": null,
-            "OnComponentFixedUpdate": null,
-            "OnComponentStart": null,
-            "OnComponentUpdate": null,
-            "RunnerColor": "1,1,1,1",
-            "ShowOwnName": true
           }
         ],
         "Children": []
