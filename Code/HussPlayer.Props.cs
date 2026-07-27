@@ -143,10 +143,14 @@ public partial class HussPlayer
 		var cam = Scene.Camera;
 		if ( !cam.IsValid() ) return;
 
-		var eyePos = cam.WorldPosition;
-		var eyeForward = cam.WorldRotation.Forward;
+		var interactionOrigin = GetPropInteractionOrigin();
+		var cameraPosition = cam.WorldPosition;
+		var cameraForward = cam.WorldRotation.Forward;
+		var cameraDistance = cameraPosition.Distance( interactionOrigin );
 
-		var tr = Scene.Trace.Ray( eyePos, eyePos + eyeForward * GrabRange )
+		var tr = Scene.Trace.Ray(
+				cameraPosition,
+				cameraPosition + cameraForward * (cameraDistance + GrabRange) )
 			.Radius( 12f )
 			.IgnoreGameObjectHierarchy( GameObject.Root )
 			.WithoutTags( HussTags.Runner, HussTags.Chaser, "trigger", "player" )
@@ -158,6 +162,15 @@ public partial class HussPlayer
 		         ?? tr.GameObject.Root.Components.Get<Rigidbody>();
 
 		if ( !rb.IsValid() ) return;
+		if ( tr.EndPosition.Distance( interactionOrigin ) > GrabRange ) return;
+
+		var reachTrace = Scene.Trace.Ray( interactionOrigin, tr.EndPosition )
+			.Radius( 8f )
+			.IgnoreGameObjectHierarchy( GameObject.Root )
+			.WithoutTags( HussTags.Runner, HussTags.Chaser, "trigger", "player" )
+			.Run();
+
+		if ( reachTrace.Hit && reachTrace.GameObject.Root != rb.GameObject.Root ) return;
 
 		_heldProp = rb.GameObject;
 		_heldRigidbody = rb;
@@ -175,25 +188,25 @@ public partial class HussPlayer
 			return;
 		}
 
-		var cam = Scene.Camera;
-		if ( !cam.IsValid() )
+		var interactionOrigin = GetPropInteractionOrigin();
+
+		if ( _heldRigidbody.WorldPosition.Distance( interactionOrigin ) > GrabRange * 1.5f )
 		{
 			DropHeldProp();
 			return;
 		}
 
-		var eyePos = cam.WorldPosition;
-		var eyeRot = cam.WorldRotation;
+		var aimDirection = GetPropAimDirection( interactionOrigin );
+		var wantedPosition = interactionOrigin + aimDirection * HoldDistance;
 
-		var targetPos = eyePos + eyeRot.Forward * HoldDistance;
-		var distance = targetPos - _heldRigidbody.WorldPosition;
+		var holdTrace = Scene.Trace.Ray( interactionOrigin, wantedPosition )
+			.Radius( 12f )
+			.IgnoreGameObjectHierarchy( GameObject.Root )
+			.IgnoreGameObjectHierarchy( _heldProp.Root )
+			.WithoutTags( HussTags.Runner, HussTags.Chaser, "trigger", "player" )
+			.Run();
 
-		if ( distance.Length > GrabRange * 1.5f )
-		{
-			DropHeldProp();
-			return;
-		}
-
+		var distance = holdTrace.EndPosition - _heldRigidbody.WorldPosition;
 		_heldRigidbody.Velocity = distance * 25f;
 		_heldRigidbody.AngularVelocity = Vector3.Zero;
 	}
@@ -204,8 +217,7 @@ public partial class HussPlayer
 
 		Input.ReleaseAction( "attack1" );
 
-		var cam = Scene.Camera;
-		var throwDir = cam.IsValid() ? cam.WorldRotation.Forward : WorldRotation.Forward;
+		var throwDir = GetPropAimDirection( GetPropInteractionOrigin() );
 
 		_heldRigidbody.Gravity = true;
 		_heldRigidbody.Velocity = throwDir * (ThrowForce * 2.0f);
@@ -223,5 +235,30 @@ public partial class HussPlayer
 
 		_heldProp = null;
 		_heldRigidbody = null;
+	}
+
+	private Vector3 GetPropInteractionOrigin()
+	{
+		if ( Head.IsValid() )
+			return Head.WorldPosition;
+
+		if ( Controller.IsValid() )
+			return Controller.EyeTransform.Position;
+
+		return WorldPosition + Vector3.Up * 64.0f;
+	}
+
+	private Vector3 GetPropAimDirection( Vector3 interactionOrigin )
+	{
+		var cam = Scene.Camera;
+		if ( !cam.IsValid() )
+			return WorldRotation.Forward;
+
+		var cameraPosition = cam.WorldPosition;
+		var projectionDistance = cameraPosition.Distance( interactionOrigin )
+			+ MathF.Max( GrabRange, HoldDistance );
+		var aimPoint = cameraPosition + cam.WorldRotation.Forward * projectionDistance;
+
+		return (aimPoint - interactionOrigin).Normal;
 	}
 }
