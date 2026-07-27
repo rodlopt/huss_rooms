@@ -513,7 +513,7 @@ public partial class HussPlayer : Component, Component.INetworkSpawn
 		if ( Controller.Body.IsValid() )
 		{
 			Controller.Body.MotionEnabled = !after;
-			if ( !after ) Controller.Body.Velocity = 0;
+			Controller.Body.Velocity = 0;
 		}
 
 		if ( Controller.ColliderObject.IsValid() )
