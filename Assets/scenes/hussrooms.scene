@@ -85,6 +85,23 @@
           "ZNear": 1
         },
         {
+          "__type": "Sandbox.AmbientOcclusion",
+          "__guid": "6b53db7d-0a5c-4abe-934c-05b53a920899",
+          "__enabled": true,
+          "Flags": 0,
+          "__version": 1,
+          "FalloffRange": 1,
+          "Intensity": 1,
+          "OnComponentDestroy": null,
+          "OnComponentDisabled": null,
+          "OnComponentEnabled": null,
+          "OnComponentFixedUpdate": null,
+          "OnComponentStart": null,
+          "OnComponentUpdate": null,
+          "Radius": 128,
+          "ThinCompensation": 5
+        },
+        {
           "__type": "Sandbox.Tonemapping",
           "__guid": "5c1af4a6-23cb-40e0-b9da-dc603ec18391",
           "__enabled": true,
@@ -95,7 +112,7 @@
           "ExposureMethod": "RGB",
           "MaximumExposure": 2,
           "MinimumExposure": 1,
-          "Mode": "HableFilmic",
+          "Mode": "AgX",
           "OnComponentDestroy": null,
           "OnComponentDisabled": null,
           "OnComponentEnabled": null,
