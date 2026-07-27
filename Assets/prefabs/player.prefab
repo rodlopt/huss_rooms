@@ -185,11 +185,13 @@
         "ChaserMaxSpeed": 510,
         "ChaserModel": "models/captainhuss/captainclark.vmdl",
         "ExhaustedRecovery": 30,
+        "GrabRange": 200,
         "Head": {
           "_type": "gameobject",
           "go": "a16bab1d-e2ce-46c5-bf0d-7a3b80c3b266"
         },
         "HitsToKill": 3,
+        "HoldDistance": 80,
         "MaxProps": 15,
         "MaxStamina": 100,
         "OnComponentDestroy": null,
@@ -218,7 +220,8 @@
           "sounds/shitfurniture.sound",
           "sounds/stayincharacter.sound"
         ],
-        "TeamSwitchCooldown": 1
+        "TeamSwitchCooldown": 1,
+        "ThrowForce": 600
       },
       {
         "__type": "Hussrooms.ChaserAttack",
@@ -254,6 +257,62 @@
         "OnComponentFixedUpdate": null,
         "OnComponentStart": null,
         "OnComponentUpdate": null
+      },
+      {
+        "__type": "Sandbox.Voice",
+        "__guid": "be2854bc-2db6-43e2-a197-0b69bb67da46",
+        "__enabled": true,
+        "Flags": 0,
+        "Distance": 15000,
+        "Falloff": [
+          {
+            "x": 0,
+            "y": 1,
+            "in": 0,
+            "out": -1.8,
+            "mode": "Mirrored"
+          },
+          {
+            "x": 0.05,
+            "y": 0.22,
+            "in": 3.5,
+            "out": -3.5,
+            "mode": "Mirrored"
+          },
+          {
+            "x": 0.2,
+            "y": 0.04,
+            "in": 0.16,
+            "out": -0.16,
+            "mode": "Mirrored"
+          },
+          {
+            "x": 1,
+            "y": 0,
+            "in": 0,
+            "out": 0,
+            "mode": "Mirrored"
+          }
+        ],
+        "LipSync": false,
+        "Loopback": false,
+        "Mode": "PushToTalk",
+        "MorphScale": 3,
+        "MorphSmoothTime": 0.1,
+        "OnComponentDestroy": null,
+        "OnComponentDisabled": null,
+        "OnComponentEnabled": null,
+        "OnComponentFixedUpdate": null,
+        "OnComponentStart": null,
+        "OnComponentUpdate": null,
+        "PushToTalkInput": "voice",
+        "Renderer": null,
+        "VoiceMixer": {
+          "Name": "unknown",
+          "Id": "00000000-0000-0000-0000-000000000000"
+        },
+        "Volume": 1,
+        "WorldspacePlayback": true
       }
     ],
     "Children": [
