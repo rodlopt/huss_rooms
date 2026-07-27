@@ -11,6 +11,21 @@
 		<div class="head">
 			<div class="title">LOBBY</div>
 			<div class="count">@Players.Count() in game</div>
+
+			@if ( CanManageBots )
+			{
+				<div class="bots">
+					<span class="bots-count">@BotCount bot@(BotCount == 1 ? "" : "s")</span>
+
+					<span class="switch @(BotsEnabled ? "on" : "")" @onclick=@ToggleBots>
+						@(BotsEnabled ? "BOTS ON" : "BOTS OFF")
+					</span>
+
+					<span class="clear @(BotCount == 0 ? "disabled" : "")" @onclick=@ClearBots>
+						CLEAR ALL
+					</span>
+				</div>
+			}
 		</div>
 
 		<div class="rows">
@@ -101,12 +116,45 @@
 		lobby.RequestSetCanSpawnBots( player, !player.CanSpawnBots );
 	}
 
+	// -------------------------------------------------------------------- bots
+
+	static HussLobby Lobby => HussLobby.Current;
+
+	/// <summary>
+	/// The host, or anyone the host has trusted with bots - the same people who can spawn
+	/// them from the prop menu. The host re-checks before acting on any of this.
+	/// </summary>
+	bool CanManageBots => IsHost || (HussPlayer.Local is HussPlayer p && p.CanSpawnBots);
+
+	int BotCount => Lobby is HussLobby lobby ? lobby.BotCount : 0;
+	bool BotsEnabled => Lobby is HussLobby lobby && lobby.BotsEnabled;
+
+	/// <summary>
+	/// Off also clears the ones already out - see HussLobby.RequestSettings.
+	/// </summary>
+	void ToggleBots()
+	{
+		if ( !IsHost || Lobby is not HussLobby lobby ) return;
+
+		lobby.RequestSettings( !lobby.BotsEnabled, lobby.BotLimit );
+	}
+
+	void ClearBots()
+	{
+		if ( BotCount == 0 ) return;
+
+		Lobby?.RequestRemoveAllBots();
+	}
+
 	protected override int BuildHash()
 	{
 		var hash = new System.HashCode();
 
 		hash.Add( IsOpen );
 		hash.Add( IsHost );
+		hash.Add( CanManageBots );
+		hash.Add( BotCount );
+		hash.Add( BotsEnabled );
 
 		foreach ( var player in Players )
 		{

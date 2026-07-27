@@ -50,8 +50,67 @@ Scoreboard
 
 		.count
 		{
+			flex-grow: 1;
+			margin-left: 14px;
 			font-size: 13px;
 			opacity: 0.45;
+		}
+
+		.bots
+		{
+			flex-direction: row;
+			align-items: center;
+
+			.bots-count
+			{
+				margin-right: 12px;
+				font-size: 12px;
+				opacity: 0.45;
+			}
+
+			.switch,
+			.clear
+			{
+				margin-left: 8px;
+				padding: 5px 12px;
+				border-radius: 4px;
+				font-size: 11px;
+				font-weight: 800;
+				letter-spacing: 1px;
+				background-color: rgba( white, 0.08 );
+				color: rgba( white, 0.6 );
+				transition: background-color 0.1s ease-out;
+
+				&:hover
+				{
+					background-color: rgba( white, 0.18 );
+					color: white;
+				}
+			}
+
+			.switch.on
+			{
+				background-color: rgba( #7ce38b, 0.22 );
+				color: #7ce38b;
+			}
+
+			.clear
+			{
+				background-color: rgba( #ff5470, 0.18 );
+				color: #ff5470;
+
+				&:hover
+				{
+					background-color: rgba( #ff5470, 0.32 );
+					color: white;
+				}
+
+				&.disabled
+				{
+					opacity: 0.3;
+					pointer-events: none;
+				}
+			}
 		}
 	}
 

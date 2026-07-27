@@ -72,28 +72,6 @@ MainMenu
 			transform: scale( 0.99 );
 		}
 
-		&.bot
-		{
-			background-color: rgba( #ffd166, 0.12 );
-		}
-
-		&.subtle
-		{
-			background-color: rgba( white, 0.03 );
-
-			.btn-title
-			{
-				font-size: 15px;
-				opacity: 0.6;
-			}
-		}
-
-		&.disabled
-		{
-			opacity: 0.35;
-			pointer-events: none;
-		}
-
 		.btn-title
 		{
 			font-size: 22px;
@@ -102,99 +80,6 @@ MainMenu
 			justify-content: center;
 		}
 
-	}
-
-	.host
-	{
-		flex-direction: column;
-		width: 100%;
-		margin-top: 16px;
-		border-radius: 6px;
-		background-color: rgba( black, 0.35 );
-		border: 1px solid rgba( white, 0.07 );
-
-		.host-head
-		{
-			flex-direction: row;
-			justify-content: space-between;
-			align-items: center;
-			padding: 12px 18px;
-			font-size: 13px;
-			font-weight: 800;
-			letter-spacing: 3px;
-			opacity: 0.75;
-
-			&:hover { opacity: 1; }
-
-			.chev { opacity: 0.6; }
-		}
-
-		.host-body
-		{
-			flex-direction: column;
-			padding: 0 18px 14px 18px;
-		}
-
-		.opt
-		{
-			flex-direction: row;
-			justify-content: space-between;
-			align-items: center;
-			padding: 8px 0;
-			font-size: 15px;
-
-			.opt-label { opacity: 0.75; }
-		}
-
-		.switch
-		{
-			padding: 4px 14px;
-			border-radius: 4px;
-			font-size: 12px;
-			font-weight: 800;
-			letter-spacing: 2px;
-			background-color: rgba( white, 0.08 );
-			color: rgba( white, 0.5 );
-
-			&.on
-			{
-				background-color: rgba( #7ce38b, 0.22 );
-				color: #7ce38b;
-			}
-		}
-
-		.stepper
-		{
-			flex-direction: row;
-			align-items: center;
-
-			.step
-			{
-				width: 28px;
-				height: 26px;
-				justify-content: center;
-				align-items: center;
-				border-radius: 4px;
-				background-color: rgba( white, 0.08 );
-				font-weight: 800;
-
-				&:hover { background-color: rgba( white, 0.18 ); }
-			}
-
-			.value
-			{
-				width: 46px;
-				justify-content: center;
-				font-weight: 700;
-			}
-		}
-
-		.host-hint
-		{
-			margin-top: 6px;
-			font-size: 12px;
-			opacity: 0.35;
-		}
 	}
 
 	.footer

@@ -43,6 +43,13 @@ public sealed class ChaserBot : Component
 	/// <summary>Who it's currently after. Null while wandering.</summary>
 	public HussPlayer Target { get; private set; }
 
+	/// <summary>
+	/// The connection that asked for this bot, so they can take it away again. Empty for the
+	/// ones the lobby puts out on its own - those are the host's to clear.
+	/// </summary>
+	[Sync( SyncFlags.FromHost )]
+	public Guid SpawnedBy { get; set; }
+
 	MoveModeIcy _move;
 
 	TimeUntil _retarget;

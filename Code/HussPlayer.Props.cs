@@ -61,6 +61,69 @@ public partial class HussPlayer
 		return true;
 	}
 
+	/// <summary>
+	/// Put a bot out from the prop menu.
+	/// </summary>
+	/// <remarks>
+	/// Deliberately not routed through <see cref="TrySpawnProp"/>. A bot isn't a prop: it
+	/// doesn't count against <see cref="MaxProps"/>, and it has to be created by the host so
+	/// the host is the one running its brain. It does share the spawn cooldown, which is just
+	/// there to stop the button being mashed.
+	/// </remarks>
+	public bool TrySpawnBot()
+	{
+		if ( IsProxy || IsDowned || InputLocked ) return false;
+		if ( !HussLobby.LocalCanSpawnBots ) return false;
+
+		if ( HussLobby.Current is not HussLobby lobby ) return false;
+		if ( lobby.AtBotLimit ) return false;
+
+		if ( _timeSinceLastPropSpawn < PropSpawnCooldown ) return false;
+
+		lobby.RequestSpawnBotAt( GetPropSpawnPosition() );
+		_timeSinceLastPropSpawn = 0;
+
+		return true;
+	}
+
+	/// <summary>
+	/// Take back the last bot we put out. Bots live on the host, so this is a request, not a
+	/// deletion - which is why it can't go through <see cref="DeleteLastProp"/>.
+	/// </summary>
+	public bool TryRemoveBot()
+	{
+		if ( IsProxy ) return false;
+		if ( HussLobby.Current is not HussLobby lobby ) return false;
+		if ( !HussLobby.LocalHasOwnBot ) return false;
+
+		if ( _timeSinceDelete < DeleteCooldown ) return false;
+
+		lobby.RequestRemoveOwnBot();
+		_timeSinceDelete = 0;
+
+		return true;
+	}
+
+	/// <summary>
+	/// Where something spawned from the prop menu lands - just in front of where you're
+	/// looking. Also used for bots, which don't go through TrySpawnProp because the host has
+	/// to be the one that creates them.
+	/// </summary>
+	public Vector3 GetPropSpawnPosition()
+	{
+		if ( !Head.IsValid() )
+			return WorldPosition + WorldRotation.Forward * 100f;
+
+		var start = Head.WorldPosition;
+		var forward = Head.WorldRotation.Forward;
+
+		var tr = Scene.Trace.Ray( start, start + forward * SpawnRange )
+			.WithoutTags( HussTags.Runner, HussTags.Chaser, "trigger" )
+			.Run();
+
+		return tr.Hit ? tr.EndPosition : start + forward * SpawnRange;
+	}
+
 	public bool TrySpawnProp( GameObject prefab )
 	{
 		if ( !prefab.IsValid() ) return false;
@@ -79,25 +142,10 @@ public partial class HussPlayer
 			return false;
 		}
 
-		Vector3 spawnPos;
-		Rotation spawnRot = Rotation.Identity;
-
-		if ( Head.IsValid() )
-		{
-			var start = Head.WorldPosition;
-			var forward = Head.WorldRotation.Forward;
-
-			var tr = Scene.Trace.Ray( start, start + forward * SpawnRange )
-				.WithoutTags( HussTags.Runner, HussTags.Chaser, "trigger" )
-				.Run();
-
-			spawnPos = tr.Hit ? tr.EndPosition : start + forward * SpawnRange;
-			spawnRot = Rotation.From( 0, Head.WorldRotation.Yaw(), 0 );
-		}
-		else
-		{
-			spawnPos = WorldPosition + WorldRotation.Forward * 100f;
-		}
+		var spawnPos = GetPropSpawnPosition();
+		var spawnRot = Head.IsValid()
+			? Rotation.From( 0, Head.WorldRotation.Yaw(), 0 )
+			: Rotation.Identity;
 
 		var spawned = prefab.Clone( spawnPos, spawnRot );
 		spawned.NetworkSpawn();

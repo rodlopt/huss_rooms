@@ -18,54 +18,7 @@
 			<div class="btn chaser" @onclick=@PlayAsChaser>
 				<div class="btn-title">PLAY AS CAPTAIN CLARK</div>
 			</div>
-
-			@if ( CanSpawnBots )
-			{
-				<div class="btn bot @(BotsAtLimit ? "disabled" : "")" @onclick=@SpawnBot>
-					<div class="btn-title">SPAWN A BOT CAPTAIN &nbsp; @BotCount / @BotLimit</div>
-				</div>
-
-				@if ( BotCount > 0 )
-				{
-					<div class="btn subtle" @onclick=@RemoveBot>
-						<div class="btn-title">REMOVE A BOT</div>
-					</div>
-				}
-			}
 		</div>
-
-		@if ( IsHost )
-		{
-			<div class="host">
-				<div class="host-head" @onclick=@ToggleHostMenu>
-					<span>HOST SETTINGS</span>
-					<span class="chev">@(HostMenuOpen ? "&#9662;" : "&#9656;")</span>
-				</div>
-
-				@if ( HostMenuOpen )
-				{
-					<div class="host-body">
-
-						<div class="opt" @onclick=@ToggleBots>
-							<span class="opt-label">Bots</span>
-							<span class="switch @(BotsEnabled ? "on" : "")">@(BotsEnabled ? "ON" : "OFF")</span>
-						</div>
-
-						<div class="opt">
-							<span class="opt-label">Bot limit</span>
-							<span class="stepper">
-								<span class="step" @onclick=@( () => NudgeLimit( -1 ) )>&minus;</span>
-								<span class="value">@BotLimit</span>
-								<span class="step" @onclick=@( () => NudgeLimit( 1 ) )>+</span>
-							</span>
-						</div>
-
-						<div class="host-hint">Press TAB to let specific players spawn bots.</div>
-
-					</div>
-				}
-			</div>
-		}
 
 		<div class="footer">
 			<span>@PlayerCount in the lobby</span>
@@ -127,54 +80,5 @@
 		StateHasChanged();
 	}
 
-	// ---------------------------------------------------------------- bots
-
-	static bool IsHost => Networking.IsHost;
-
-	static HussLobby Lobby => HussLobby.Current;
-
-	/// <summary>
-	/// Only offered to the host and to players the host has trusted. The host re-checks this
-	/// properly before spawning anything - this just keeps the button out of the way.
-	/// </summary>
-	bool CanSpawnBots => HussLobby.LocalCanSpawnBots;
-
-	bool BotsEnabled => Lobby is HussLobby lobby && lobby.BotsEnabled;
-	int BotCount => Lobby is HussLobby lobby ? lobby.BotCount : 0;
-	int BotLimit => Lobby is HussLobby lobby ? lobby.BotLimit : 0;
-	bool BotsAtLimit => Lobby is HussLobby lobby && lobby.AtBotLimit;
-
-	public bool HostMenuOpen { get; private set; }
-
-	void SpawnBot()
-	{
-		if ( BotsAtLimit ) return;
-
-		Lobby?.RequestSpawnBot();
-	}
-
-	void RemoveBot() => Lobby?.RequestRemoveBot();
-
-	void ToggleHostMenu()
-	{
-		HostMenuOpen = !HostMenuOpen;
-		StateHasChanged();
-	}
-
-	void ToggleBots()
-	{
-		if ( Lobby is not HussLobby lobby ) return;
-
-		lobby.RequestSettings( !lobby.BotsEnabled, lobby.BotLimit );
-	}
-
-	void NudgeLimit( int delta )
-	{
-		if ( Lobby is not HussLobby lobby ) return;
-
-		lobby.RequestSettings( lobby.BotsEnabled, (lobby.BotLimit + delta).Clamp( 0, lobby.MaxBotLimit ) );
-	}
-
-	protected override int BuildHash() => System.HashCode.Combine(
-		IsOpen, PlayerCount, CanSpawnBots, BotsEnabled, BotCount, BotLimit, HostMenuOpen, IsHost );
+	protected override int BuildHash() => System.HashCode.Combine( IsOpen, PlayerCount );
 }

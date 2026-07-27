@@ -44,6 +44,18 @@ public sealed class HussLobby : Component, Component.INetworkListener
 	/// <summary>The most the limit can ever be raised to.</summary>
 	[Property, Group( "Bots" )] public int MaxBotLimit { get; set; } = 16;
 
+	/// <summary>
+	/// Bots put out automatically once the game is up, so a fresh lobby already has something
+	/// hunting you instead of an empty map.
+	/// </summary>
+	[Property, Group( "Bots" )] public int StartingBots { get; set; } = 1;
+
+	/// <summary>
+	/// How far from the person asking a bot may be placed. Anything further falls back to a
+	/// spawn point, so a request can't drop a chaser on the far side of the map.
+	/// </summary>
+	[Property, Group( "Bots" )] public float MaxSpawnDistance { get; set; } = 400.0f;
+
 	/// <summary>Live on every machine. Host authoritative - change it through <see cref="RequestSettings"/>.</summary>
 	public bool BotsEnabled { get; private set; } = true;
 
@@ -54,12 +66,34 @@ public sealed class HussLobby : Component, Component.INetworkListener
 
 	public bool AtBotLimit => BotCount >= BotLimit;
 
+	bool _startingBotsDone;
+
 	protected override void OnStart()
 	{
 		_current = this;
 
 		BotsEnabled = DefaultBotsEnabled;
 		BotLimit = DefaultBotLimit.Clamp( 0, MaxBotLimit );
+	}
+
+	protected override void OnFixedUpdate()
+	{
+		if ( !Networking.IsHost || _startingBotsDone ) return;
+
+		// Wait for somebody to actually be in the map. Spawning earlier risks doing it before
+		// networking is up, and gives the bot nothing to chase anyway.
+		if ( !Scene.GetAllComponents<HussPlayer>().Any( x => !x.IsBot ) ) return;
+
+		_startingBotsDone = true;
+
+		if ( !BotsEnabled ) return;
+
+		for ( var i = 0; i < StartingBots && !AtBotLimit; i++ )
+		{
+			// Nobody's in particular, so no player can delete it - CLEAR ALL on the scoreboard
+			// is how these go away.
+			SpawnBotAt( FindSpawnPoint(), Guid.Empty );
+		}
 	}
 
 	// -------------------------------------------------------------- permissions
@@ -97,12 +131,23 @@ public sealed class HussLobby : Component, Component.INetworkListener
 			.FirstOrDefault( x => !x.IsBot && x.Network.Owner == connection );
 	}
 
-	bool CallerMaySpawnBots( Connection caller )
+	/// <summary>
+	/// Who is trusted with bots at all - the host, plus anyone the host has promoted.
+	/// </summary>
+	bool CallerMayManageBots( Connection caller )
 	{
-		if ( !BotsEnabled ) return false;
 		if ( IsHostConnection( caller ) ) return true;
 
 		return PlayerFor( caller ) is HussPlayer player && player.CanSpawnBots;
+	}
+
+	/// <summary>
+	/// Same people, but putting new ones out also needs bots to be switched on. Removing them
+	/// deliberately doesn't - clearing up shouldn't stop working when they're disabled.
+	/// </summary>
+	bool CallerMaySpawnBots( Connection caller )
+	{
+		return BotsEnabled && CallerMayManageBots( caller );
 	}
 
 	// ---------------------------------------------------------------- settings
@@ -163,19 +208,53 @@ public sealed class HussLobby : Component, Component.INetworkListener
 	// ------------------------------------------------------------ bot spawning
 
 	/// <summary>
-	/// Ask the host for a bot. The host is the one that checks whether you're allowed.
+	/// Ask the host for a bot at a spot you're looking at - this is what the prop menu calls.
+	/// The host is the one that checks whether you're allowed, and where it may go.
+	/// </summary>
+	[Rpc.Host]
+	public void RequestSpawnBotAt( Vector3 position )
+	{
+		if ( !CallerMaySpawnBots( Rpc.Caller ) ) return;
+		if ( AtBotLimit ) return;
+
+		// Only honour the requested spot if the caller is standing next to it. Otherwise it's
+		// a spawn point, so nobody can drop a chaser into somebody else's lap from range.
+		var where = FindSpawnPoint();
+
+		if ( PlayerFor( Rpc.Caller ) is HussPlayer caller &&
+			 caller.WorldPosition.Distance( position ) <= MaxSpawnDistance )
+		{
+			where = new Transform( position, Rotation.Identity );
+		}
+
+		SpawnBotAt( where, Rpc.Caller?.Id ?? Guid.Empty );
+	}
+
+	/// <summary>
+	/// Ask the host for a bot at a spawn point.
 	/// </summary>
 	[Rpc.Host]
 	public void RequestSpawnBot()
 	{
 		if ( !CallerMaySpawnBots( Rpc.Caller ) ) return;
-		if ( !BotPrefab.IsValid() ) return;
 		if ( AtBotLimit ) return;
 
-		var bot = BotPrefab.Clone( FindSpawnPoint(), name: $"Bot {BotCount + 1}" );
+		SpawnBotAt( FindSpawnPoint(), Rpc.Caller?.Id ?? Guid.Empty );
+	}
+
+	void SpawnBotAt( Transform where, Guid spawnedBy )
+	{
+		if ( !BotPrefab.IsValid() ) return;
+
+		var bot = BotPrefab.Clone( where.WithScale( 1 ), name: $"Bot {BotCount + 1}" );
 
 		// Owned by the host, because the host is the one running its brain.
 		bot.NetworkSpawn( Connection.Local );
+
+		// After the spawn, not before - the sync only has somewhere to live once the object
+		// is on the network.
+		if ( bot.Components.Get<ChaserBot>( true ) is ChaserBot brain )
+			brain.SpawnedBy = spawnedBy;
 	}
 
 	/// <summary>
@@ -184,10 +263,54 @@ public sealed class HussLobby : Component, Component.INetworkListener
 	[Rpc.Host]
 	public void RequestRemoveBot()
 	{
-		if ( !CallerMaySpawnBots( Rpc.Caller ) ) return;
+		if ( !CallerMayManageBots( Rpc.Caller ) ) return;
 
 		var bot = Scene.GetAllComponents<ChaserBot>().LastOrDefault();
 		bot?.GameObject.Destroy();
+	}
+
+	/// <summary>
+	/// Take back the last bot you put out yourself.
+	/// </summary>
+	/// <remarks>
+	/// No permission check on purpose. It only ever touches bots stamped with the caller's own
+	/// connection, so the worst anyone can do is tidy up after themselves - and they should
+	/// still be able to do that if the host has since revoked their ability to make new ones.
+	/// </remarks>
+	[Rpc.Host]
+	public void RequestRemoveOwnBot()
+	{
+		if ( Rpc.Caller is not Connection caller ) return;
+
+		var bot = Scene.GetAllComponents<ChaserBot>()
+			.LastOrDefault( x => x.SpawnedBy == caller.Id );
+
+		bot?.GameObject.Destroy();
+	}
+
+	/// <summary>
+	/// True if the local player has a bot of their own out to remove.
+	/// </summary>
+	public static bool LocalHasOwnBot
+	{
+		get
+		{
+			if ( Current is not HussLobby lobby ) return false;
+			if ( Connection.Local is not Connection local ) return false;
+
+			return lobby.Scene.GetAllComponents<ChaserBot>().Any( x => x.SpawnedBy == local.Id );
+		}
+	}
+
+	/// <summary>
+	/// Clear the map of bots in one go.
+	/// </summary>
+	[Rpc.Host]
+	public void RequestRemoveAllBots()
+	{
+		if ( !CallerMayManageBots( Rpc.Caller ) ) return;
+
+		RemoveAllBots();
 	}
 
 	void RemoveAllBots()

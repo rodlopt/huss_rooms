@@ -8,13 +8,19 @@
 	<div class="title">
 		<label>Props</label>
 		<div style="flex-grow: 1"></div>
+		@if ( HasOwnBot )
+		{
+			<div class="action-button" tooltip="Remove your last bot" @onclick=@( () => Player.TryRemoveBot() )>
+				<i>person_remove</i>
+			</div>
+		}
 		<div class="action-button" tooltip="Delete last prop" @onclick=@( () => Player.DeleteLastProp() )>
 			<i>delete</i>
 		</div>
 		<div class="action-button close" @onclick=@( () => Close() )>X</div>
 	</div>
 	<div class="container">
-		@foreach ( var prop in SpawnableProps )
+		@foreach ( var prop in VisibleProps )
 		{
 			<div class="prop" @onclick=@( () => OnPropClicked( prop.Prop ) )>
 				<Image Texture=@GetPropIcon( prop.Prop )/>
@@ -38,8 +44,41 @@
 
 	[Property, WideMode, InlineEditor] public List<SpawnableProp> SpawnableProps { get; set; }
 
+	/// <summary>
+	/// Everything on the list, minus the bot unless you're allowed to put one out. The host
+	/// re-checks properly before spawning - hiding it here just keeps it out of the way.
+	/// </summary>
+	private IEnumerable<SpawnableProp> VisibleProps => SpawnableProps is null
+		? Enumerable.Empty<SpawnableProp>()
+		: SpawnableProps.Where( x => !IsBot( x.Prop ) || HussLobby.LocalCanSpawnBots );
+
+	/// <summary>
+	/// A bot isn't really a prop - it doesn't count against the prop limit, and it has to be
+	/// spawned by the host so the host is the one running its brain.
+	/// </summary>
+	private static bool IsBot( GameObject prefab )
+	{
+		if ( !prefab.IsValid() ) return false;
+
+		if ( HussLobby.Current is HussLobby lobby && lobby.BotPrefab == prefab )
+			return true;
+
+		return prefab.Components.Get<ChaserBot>( true ) is not null;
+	}
+
+	/// <summary>
+	/// Whether we have a bot of our own out, which is what the remove button is for.
+	/// </summary>
+	private bool HasOwnBot => HussLobby.LocalHasOwnBot;
+
 	private void OnPropClicked( GameObject prefab )
 	{
+		if ( IsBot( prefab ) )
+		{
+			Player?.TrySpawnBot();
+			return;
+		}
+
 		Player?.TrySpawnProp( prefab );
 	}
 
@@ -77,5 +116,8 @@
 		return texture;
 	}
 
-	protected override int BuildHash() => System.HashCode.Combine( Show );
+	// The bot bits are in here so the entry and the remove button appear or disappear the
+	// moment they become relevant, rather than the next time the menu is reopened.
+	protected override int BuildHash() => System.HashCode.Combine(
+		Show, HussLobby.LocalCanSpawnBots, HasOwnBot );
 }

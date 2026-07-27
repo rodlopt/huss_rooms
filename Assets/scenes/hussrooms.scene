@@ -198,19 +198,21 @@
           "__guid": "01b90507-f7dd-4b7f-a340-09dc53a4e2f9",
           "__enabled": true,
           "Flags": 0,
+          "BotPrefab": {
+            "_type": "gameobject",
+            "prefab": "prefabs/bot.prefab"
+          },
+          "DefaultBotLimit": 4,
+          "DefaultBotsEnabled": true,
+          "MaxBotLimit": 16,
+          "MaxSpawnDistance": 400,
           "OnComponentDestroy": null,
           "OnComponentDisabled": null,
           "OnComponentEnabled": null,
           "OnComponentFixedUpdate": null,
           "OnComponentStart": null,
           "OnComponentUpdate": null,
-          "BotPrefab": {
-            "_type": "gameobject",
-            "prefab": "prefabs/bot.prefab"
-          },
-          "DefaultBotsEnabled": true,
-          "DefaultBotLimit": 4,
-          "MaxBotLimit": 16
+          "StartingBots": 1
         }
       ],
       "Children": [
@@ -594,6 +596,13 @@
               "Prop": {
                 "_type": "gameobject",
                 "prefab": "prefabs/props/shelf.prefab"
+              }
+            },
+            {
+              "Name": "Captain Clark",
+              "Prop": {
+                "_type": "gameobject",
+                "prefab": "prefabs/bot.prefab"
               }
             }
           ]
