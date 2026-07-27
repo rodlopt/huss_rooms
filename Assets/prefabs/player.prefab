@@ -184,6 +184,7 @@
         "ChaserBaseSpeed": 360,
         "ChaserMaxSpeed": 510,
         "ChaserModel": "models/captainhuss/captainclark.vmdl",
+        "DeleteCooldown": 1,
         "ExhaustedRecovery": 30,
         "GrabRange": 200,
         "Head": {
@@ -308,8 +309,8 @@
         "PushToTalkInput": "voice",
         "Renderer": null,
         "VoiceMixer": {
-          "Name": "unknown",
-          "Id": "00000000-0000-0000-0000-000000000000"
+          "Name": "voice",
+          "Id": "8c0f77de-0d01-4f12-af6e-aab8cd521c8b"
         },
         "Volume": 1,
         "WorldspacePlayback": true
