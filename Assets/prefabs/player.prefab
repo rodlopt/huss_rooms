@@ -184,7 +184,7 @@
         "ChaserBaseSpeed": 360,
         "ChaserMaxSpeed": 510,
         "ChaserModel": "models/captainhuss/captainclark.vmdl",
-        "DeleteCooldown": 1,
+        "DeathSound": "sounds/clarkbite.sound",
         "ExhaustedRecovery": 30,
         "GrabRange": 200,
         "Head": {
@@ -193,9 +193,9 @@
         },
         "HitsToKill": 3,
         "HoldDistance": 80,
+        "KnockdownRecoveryTime": 2.5,
         "MaxProps": 15,
         "MaxStamina": 100,
-        "KnockdownRecoveryTime": 2.5,
         "OnComponentDestroy": null,
         "OnComponentDisabled": null,
         "OnComponentEnabled": null,
@@ -209,8 +209,8 @@
         "RunnerBaseSpeed": 330,
         "RunnerMaxSpeed": 440,
         "RunnerModel": "models/clark/clark.vmdl",
-        "SpawnRange": 40,
         "SlipSpeedThreshold": 250,
+        "SpawnRange": 40,
         "SprintScale": 1.45,
         "StaminaDrain": 26,
         "StaminaRegen": 16,
@@ -224,8 +224,8 @@
           "sounds/stayincharacter.sound"
         ],
         "TeamSwitchCooldown": 1,
-        "ThrownPropSpeedThreshold": 400,
-        "ThrowForce": 600
+        "ThrowForce": 600,
+        "ThrownPropSpeedThreshold": 400
       },
       {
         "__type": "Hussrooms.ChaserAttack",

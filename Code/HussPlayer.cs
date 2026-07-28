@@ -115,6 +115,11 @@ public partial class HussPlayer : Component, Component.INetworkSpawn
 	[Property, Group( "Sound" )] public SoundEvent[] Taunts { get; set; } = Array.Empty<SoundEvent>();
 
 	/// <summary>
+	/// Played when this player is put down for good. Leave empty for silence.
+	/// </summary>
+	[Property, Group( "Sound" )] public SoundEvent DeathSound { get; set; }
+
+	/// <summary>
 	/// True while the body should be pinned to the camera instead of facing its own movement.
 	/// Written by <see cref="HussCamera"/> on the owner; synced so remote players turn the
 	/// same way we see ourselves turn.
@@ -452,8 +457,29 @@ public partial class HussPlayer : Component, Component.INetworkSpawn
 		_recoverFromKnockdown = false;
 		SpawnRagdoll( Controller.IsValid() ? Controller.Velocity : Vector3.Zero );
 
+		// Pass the spot we died rather than letting each machine read it later - by the time
+		// the message lands the pawn may already have been parked or moved.
+		BroadcastDeathSound( WorldPosition + Vector3.Up * 36.0f );
+
 		_respawnAt = RespawnDelay;
 		IsDowned = true;
+	}
+
+	/// <summary>
+	/// Everyone nearby should hear it, not just the two people involved.
+	/// </summary>
+	/// <remarks>
+	/// Anchored to a fixed world point on purpose. GameObject.PlaySound parents the sound to
+	/// the object and follows it, so the scream would ride along with the pawn - which gets
+	/// parked on death and then teleported to a spawn point a few seconds later. It has to
+	/// stay where the body fell.
+	/// </remarks>
+	[Rpc.Broadcast]
+	void BroadcastDeathSound( Vector3 position )
+	{
+		if ( DeathSound is null ) return;
+
+		Sound.Play( DeathSound, position );
 	}
 
 	/// <summary>
@@ -508,6 +534,18 @@ public partial class HussPlayer : Component, Component.INetworkSpawn
 
 		Hits = 0;
 		IsDowned = false;
+
+		var spawn = FindSpawnPoint();
+		Respawn( spawn.Position, spawn.Rotation.Angles() );
+	}
+
+	/// <summary>
+	/// Put this player back at a spawn point right now, without killing them. Host only -
+	/// used by <see cref="RespawnZone"/> to catch anyone who has fallen out of the map.
+	/// </summary>
+	public void RespawnAtSpawnPoint()
+	{
+		if ( !Networking.IsHost ) return;
 
 		var spawn = FindSpawnPoint();
 		Respawn( spawn.Position, spawn.Rotation.Angles() );

@@ -159,6 +159,7 @@
         "ChaserBaseSpeed": 360,
         "ChaserMaxSpeed": 510,
         "ChaserModel": "models/captainhuss/captainclark.vmdl",
+        "DeathSound": "sounds/clarkbite.sound",
         "ExhaustedRecovery": 30,
         "GrabRange": 200,
         "Head": {
