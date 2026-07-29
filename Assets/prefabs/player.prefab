@@ -217,11 +217,7 @@
         "StaminaRegenDelay": 0.9,
         "TauntCooldown": 5,
         "Taunts": [
-          "sounds/architect.sound",
-          "sounds/clarkbite.sound",
-          "sounds/itsjustwired.sound",
-          "sounds/shitfurniture.sound",
-          "sounds/stayincharacter.sound"
+          "sounds/taunts.sound"
         ],
         "TeamSwitchCooldown": 1,
         "ThrowForce": 600,

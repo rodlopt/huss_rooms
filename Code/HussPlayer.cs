@@ -307,6 +307,7 @@ public partial class HussPlayer : Component, Component.INetworkSpawn
 		if ( timeSinceTaunted < TauntCooldown ) return;
 
 		BroadcastTaunt( Random.Shared.Next( Taunts.Length ) );
+		AwardStat( StatTaunts, 1 );
 	}
 
 	[Rpc.Broadcast]
@@ -333,6 +334,9 @@ public partial class HussPlayer : Component, Component.INetworkSpawn
 	void ApplyTeam()
 	{
 		var chaser = IsChaser;
+
+		// Swapping sides starts a fresh life as far as longest_survival is concerned.
+		RestartSurvivalTimer();
 
 		// Physics tags live on the root - GameTags walks ancestors, so the collider shapes
 		// underneath pick these up automatically and safe room barriers can filter on them.
@@ -452,6 +456,9 @@ public partial class HussPlayer : Component, Component.INetworkSpawn
 
 	void GoDown()
 	{
+		// Before IsDowned - this is the end of the life we're timing.
+		SubmitSurvivalTime();
+
 		// Ragdoll first: it copies its pose off the live renderer, and setting IsDowned takes
 		// that renderer away.
 		_recoverFromKnockdown = false;
@@ -534,6 +541,7 @@ public partial class HussPlayer : Component, Component.INetworkSpawn
 
 		Hits = 0;
 		IsDowned = false;
+		RestartSurvivalTimer();
 
 		var spawn = FindSpawnPoint();
 		Respawn( spawn.Position, spawn.Rotation.Angles() );
@@ -623,5 +631,10 @@ public partial class HussPlayer : Component, Component.INetworkSpawn
 		_safeZones = Math.Max( 0, _safeZones + (inside ? 1 : -1) );
 		var wasSafe = IsSafe;
 		IsSafe = _safeZones > 0;
+
+		// Made it inside on your last hit - only on the transition, so standing in the
+		// doorway doesn't farm it.
+		if ( !wasSafe && IsSafe && IsRunner && !IsDowned && HitsRemaining == 1 )
+			AwardStat( StatEscapes, 1 );
 	}
 }

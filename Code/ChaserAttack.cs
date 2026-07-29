@@ -128,8 +128,13 @@ public sealed class ChaserAttack : Component
 		// Generous compared to the client's own check - it only exists to reject nonsense.
 		if ( DistanceTo( target ) > Range * 2.0f ) return;
 
-		if ( target.TakeHit( Player ) )
-			BroadcastHit( target.WorldPosition );
+		if ( !target.TakeHit( Player ) ) return;
+
+		BroadcastHit( target.WorldPosition );
+
+		// TakeHit sets IsDowned synchronously via GoDown, so this is "that was the fatal one".
+		if ( target.IsDowned )
+			Player.AwardStat( HussPlayer.StatKills, 1 );
 	}
 
 	[Rpc.Broadcast]

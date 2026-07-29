@@ -40,16 +40,21 @@ public partial class HussPlayer : Component.ICollisionListener
 		if ( wasHit )
 			ragdollVelocity += propVelocity * 0.35f;
 
-		RequestPropKnockdown( prop, ragdollVelocity );
+		RequestPropKnockdown( prop, ragdollVelocity, wasHit );
 	}
 
 	[Rpc.Host]
-	void RequestPropKnockdown( GameObject prop, Vector3 ragdollVelocity )
+	void RequestPropKnockdown( GameObject prop, Vector3 ragdollVelocity, bool thrown )
 	{
 		if ( Network.Owner != Rpc.Caller ) return;
 		if ( !IsChaser || IsDowned ) return;
 		if ( !prop.IsValid() || !prop.Tags.Has( "prop" ) ) return;
 		if ( prop.WorldPosition.Distance( WorldPosition ) > 256.0f ) return;
+
+		// Only a prop thrown at us counts for whoever threw it. Skidding into a stationary
+		// one is your own fault, and nobody gets the credit.
+		if ( thrown )
+			CreditPropTrip( prop );
 
 		_recoverFromKnockdown = true;
 		SpawnRagdoll( ragdollVelocity );
