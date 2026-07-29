@@ -317,6 +317,62 @@
         },
         "Volume": 1,
         "WorldspacePlayback": true
+      },
+      {
+        "__type": "Hussrooms.FootstepSounds",
+        "__guid": "b582bd32-2c28-4643-a894-808e9bb393d0",
+        "__enabled": true,
+        "Flags": 0,
+        "Chaser": {
+          "Steps": [
+            "sounds/carpetwalk.sound"
+          ],
+          "LeftFoot": [
+            "sounds/carpetwalk.sound"
+          ],
+          "RightFoot": [
+            "sounds/carpetwalk.sound"
+          ],
+          "Landing": [
+            "sounds/carpetwalk.sound"
+          ],
+          "Volume": 4,
+          "MinPitch": 0.95,
+          "MaxPitch": 1.05,
+          "HasSounds": true
+        },
+        "FullVolumeSpeed": 400,
+        "MinInterval": 0.2,
+        "MinVolume": 0.1,
+        "Mixer": {
+          "Name": "game",
+          "Id": "cb09ff3e-def0-4780-902f-15ff68674002"
+        },
+        "OnComponentDestroy": null,
+        "OnComponentDisabled": null,
+        "OnComponentEnabled": null,
+        "OnComponentFixedUpdate": null,
+        "OnComponentStart": null,
+        "OnComponentUpdate": null,
+        "Runner": {
+          "Steps": [
+            "sounds/step1.sound"
+          ],
+          "LeftFoot": [
+            "sounds/step1.sound"
+          ],
+          "RightFoot": [
+            "sounds/step1.sound"
+          ],
+          "Landing": [
+            "sounds/step1.sound"
+          ],
+          "Volume": 1,
+          "MinPitch": 0.95,
+          "MaxPitch": 1.05,
+          "HasSounds": true
+        },
+        "SilenceSurfaceSounds": true
       }
     ],
     "Children": [

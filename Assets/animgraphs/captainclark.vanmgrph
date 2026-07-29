@@ -293,7 +293,7 @@
 							{
 								m_nodeID = 
 								{
-									m_id = 680920618
+									m_id = 1162106500
 								}
 								m_outputID = 
 								{
@@ -335,7 +335,7 @@
 				{
 					_class = "CSequenceAnimNode"
 					m_sName = "Unnamed"
-					m_vecPosition = [ -160.0, -96.0 ]
+					m_vecPosition = [ -384.0, -96.0 ]
 					m_nNodeID = 
 					{
 						m_id = 680920618
@@ -448,6 +448,38 @@
 			{
 				key = 
 				{
+					m_id = 1162106500
+				}
+				value = 
+				{
+					_class = "CSpeedScaleAnimNode"
+					m_sName = "Unnamed"
+					m_vecPosition = [ -128.0, -96.0 ]
+					m_nNodeID = 
+					{
+						m_id = 1162106500
+					}
+					m_sNote = ""
+					m_inputConnection = 
+					{
+						m_nodeID = 
+						{
+							m_id = 680920618
+						}
+						m_outputID = 
+						{
+							m_id = 4294967295
+						}
+					}
+					m_param = 
+					{
+						m_id = 1455500498
+					}
+				}
+			},
+			{
+				key = 
+				{
 					m_id = 1378738196
 				}
 				value = 
@@ -538,6 +570,20 @@
 				m_fDefaultValue = 0.0
 				m_fMinValue = 0.0
 				m_fMaxValue = 1.0
+			},
+			{
+				_class = "CFloatAnimParameter"
+				m_name = "scaryspeed"
+				m_id = 
+				{
+					m_id = 1455500498
+				}
+				m_previewButton = "ANIMPARAM_BUTTON_NONE"
+				m_bUseMostRecentValue = false
+				m_bAutoReset = false
+				m_fDefaultValue = 1.0
+				m_fMinValue = 1.0
+				m_fMaxValue = 2.3
 			},
 		]
 	}
