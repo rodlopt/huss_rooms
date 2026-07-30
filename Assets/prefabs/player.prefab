@@ -195,7 +195,7 @@
         "HoldDistance": 80,
         "KnockdownRecoveryTime": 2.5,
         "MaxProps": 15,
-        "MaxStamina": 100,
+        "MaxStamina": 150,
         "OnComponentDestroy": null,
         "OnComponentDisabled": null,
         "OnComponentEnabled": null,
