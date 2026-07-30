@@ -20,7 +20,7 @@
         "__guid": "616764cb-9c1f-4529-8778-7fdfb6aca3fd",
         "__enabled": true,
         "Flags": 0,
-        "CobaltApiUrl": "http://localhost:8080/",
+        "CobaltApiUrl": "https://cobalt.googers.xyz/",
         "ControlDistance": 180,
         "HearingDistance": 1800,
         "InitialVolume": 0.65,
@@ -142,7 +142,28 @@
         "StartAsleep": false
       }
     ],
-    "Children": []
+    "Children": [],
+    "__properties": {
+      "NetworkInterpolation": true,
+      "TimeScale": 1,
+      "WantsSystemScene": true,
+      "Metadata": {},
+      "NavMesh": {
+        "Enabled": false,
+        "IncludeStaticBodies": true,
+        "IncludeKeyframedBodies": true,
+        "EditorAutoUpdate": false,
+        "AgentHeight": 64,
+        "AgentRadius": 16,
+        "AgentStepSize": 18,
+        "AgentMaxSlope": 40,
+        "ExcludedBodies": "",
+        "IncludedBodies": "",
+        "DeferGeneration": false,
+        "CustomBounds": false
+      }
+    },
+    "__variables": []
   },
   "ResourceVersion": 2,
   "ShowInMenu": false,
