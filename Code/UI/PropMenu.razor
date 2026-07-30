@@ -8,7 +8,7 @@
 	<div class="title">
 		<label>Props</label>
 		<div style="flex-grow: 1"></div>
-		@if ( HasOwnBot )
+		@if (HasOwnBot)
 		{
 			<div class="action-button" tooltip="Remove your last bot" @onclick=@( () => Player.TryRemoveBot() )>
 				<i>person_remove</i>
@@ -20,13 +20,12 @@
 		<div class="action-button" tooltip="Delete All props" @onclick=@( () => Player.DeleteAllProps() )>
 			<i>delete_forever</i>
 		</div>
-		<div class="action-button close" @onclick=@( () => Close() )>X</div>
 	</div>
 	<div class="container">
-		@foreach ( var prop in VisibleProps )
+		@foreach (var prop in VisibleProps)
 		{
 			<div class="prop" @onclick=@( () => OnPropClicked( prop.Prop ) )>
-				<Image Texture=@GetPropIcon( prop.Prop )/>
+				<Image Texture=@GetPropIcon(prop.Prop) />
 				<h1>@prop.Name</h1>
 			</div>
 		}
@@ -53,20 +52,20 @@
 	/// </summary>
 	private IEnumerable<SpawnableProp> VisibleProps => SpawnableProps is null
 		? Enumerable.Empty<SpawnableProp>()
-		: SpawnableProps.Where( x => !IsBot( x.Prop ) || HussLobby.LocalCanSpawnBots );
+		: SpawnableProps.Where(x => !IsBot(x.Prop) || HussLobby.LocalCanSpawnBots);
 
 	/// <summary>
 	/// A bot isn't really a prop - it doesn't count against the prop limit, and it has to be
 	/// spawned by the host so the host is the one running its brain.
 	/// </summary>
-	private static bool IsBot( GameObject prefab )
+	private static bool IsBot(GameObject prefab)
 	{
-		if ( !prefab.IsValid() ) return false;
+		if (!prefab.IsValid()) return false;
 
-		if ( HussLobby.Current is HussLobby lobby && lobby.BotPrefab == prefab )
+		if (HussLobby.Current is HussLobby lobby && lobby.BotPrefab == prefab)
 			return true;
 
-		return prefab.Components.Get<ChaserBot>( true ) is not null;
+		return prefab.Components.Get<ChaserBot>(true) is not null;
 	}
 
 	/// <summary>
@@ -74,44 +73,36 @@
 	/// </summary>
 	private bool HasOwnBot => HussLobby.LocalHasOwnBot;
 
-	private void OnPropClicked( GameObject prefab )
+	private void OnPropClicked(GameObject prefab)
 	{
-		if ( IsBot( prefab ) )
+		if (IsBot(prefab))
 		{
 			Player?.TrySpawnBot();
 			return;
 		}
 
-		Player?.TrySpawnProp( prefab );
+		Player?.TrySpawnProp(prefab);
 	}
 
 	protected override void OnUpdate()
 	{
-		if ( Input.Pressed( "Menu" ) )
-		{
-			Show = !Show;
-		}
-	}
-
-	void Close()
-	{
-		Show = false;
+		if (Input.Down("Menu")) { Show = true; } else { Show = false; }
 	}
 
 	private Dictionary<GameObject, Texture> _iconCache = new();
 
-	public Texture GetPropIcon( GameObject target )
+	public Texture GetPropIcon(GameObject target)
 	{
-		if ( !target.IsValid() )
+		if (!target.IsValid())
 			return Texture.Transparent;
 
-		if ( _iconCache.TryGetValue( target, out var cachedTexture ) )
+		if (_iconCache.TryGetValue(target, out var cachedTexture))
 		{
 			return cachedTexture;
 		}
 
-		using var bitmap = new Bitmap( 128, 128 );
-		SceneUtility.RenderGameObjectToBitmap( target, bitmap );
+		using var bitmap = new Bitmap(128, 128);
+		SceneUtility.RenderGameObjectToBitmap(target, bitmap);
 
 		var texture = bitmap.ToTexture();
 		_iconCache[target] = texture;
@@ -122,5 +113,5 @@
 	// The bot bits are in here so the entry and the remove button appear or disappear the
 	// moment they become relevant, rather than the next time the menu is reopened.
 	protected override int BuildHash() => System.HashCode.Combine(
-		Show, HussLobby.LocalCanSpawnBots, HasOwnBot );
+		Show, HussLobby.LocalCanSpawnBots, HasOwnBot);
 }

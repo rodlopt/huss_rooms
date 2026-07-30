@@ -7,7 +7,6 @@ PropMenu {
   font-family: Londrina Solid;
   margin: 200px 430px;
   flex-direction: column;
-  background-color: rgba(0, 0, 0, 0.5);
   opacity: 0;
 
   pointer-events: all;
@@ -20,19 +19,11 @@ PropMenu {
     font-size: 50px;
     color: white;
     width: 100%;
-    background-color: #6a6a6a;
+    backdrop-filter: blur(20px);
+    background-color: rgba(0, 0, 0, 0.801);
 
     label {
       padding: 10px 15px;
-    }
-
-    .close {
-      background-color: #ff0000;
-      padding: 0px 20px;
-
-      &:hover {
-        background-color: #570000;
-      }
     }
 
     .delete {
@@ -51,21 +42,32 @@ PropMenu {
         width: 70px;
         height: 50px;
       }
+      
+      &:hover {
+        transition: all 0.1s ease;
+        transform: scale( 1.15px 1.15px) ;
+        cursor: pointer;
+      }
     }
   }
 
   .container {
     padding: 20px;
+    backdrop-filter: blur(5px);
+    background-color: rgba(0, 0, 0, 0.5);
     gap: 10px;
+    overflow: scroll;
     height: 100%;
     flex-direction: row;
     flex-wrap: wrap;
     justify-content: center;
 
     .prop {
-      background-color: slategray;
+      background-image: radial-gradient( rgba(0, 0, 0, 0.5), rgba(0, 0, 0, 0.167) );
+      transition: all 0.1s ease-out;
+      border-radius: 20px;
       padding: 20px;
-      width: 256px;
+      width: 200px;
       height: 200px;
       flex-direction: column;
       justify-content: center;
@@ -82,7 +84,9 @@ PropMenu {
       }
 
       &:hover {
-        background-color: lightgray;
+        background-image: linear-gradient(rgba(166, 150, 150, 0.312), rgba(64, 56, 56, 0.312));
+        transition: all 0.1s ease;
+        transform: scale( 1.05px 1.05px) ;
         cursor: pointer;
       }
     }
