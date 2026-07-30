@@ -66,7 +66,7 @@ public sealed class ChaserAttack : Component
 
 		// Only the chaser's own machine decides when it swings. The host gets the final say
 		// on whether the hit counted.
-		if ( !Player.IsValid() || Player.IsChaser || Player.IsDowned ) return;
+		if ( !Player.IsValid() || !Player.IsChaser || Player.IsDowned ) return;
 
 		if ( IsSwinging )
 		{
