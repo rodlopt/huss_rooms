@@ -219,7 +219,7 @@
             "_type": "gameobject",
             "prefab": "prefabs/bot.prefab"
           },
-          "DefaultBotLimit": 4,
+          "DefaultBotLimit": 100,
           "DefaultBotsEnabled": true,
           "MaxBotLimit": 200,
           "MaxSpawnDistance": 400,
