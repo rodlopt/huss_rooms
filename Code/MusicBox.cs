@@ -11,8 +11,7 @@ public sealed class MusicBox : Component, Component.IPressable
 
 	[Property, Group( "Playback" )] public bool RepeatByDefault { get; set; }
 
-	[Property, Group( "Online Sources" )]
-	public string CobaltApiUrl { get; set; } = DevelopmentCobaltApiUrl;
+	[Property, Group( "Online Sources" )] public string CobaltApiUrl { get; set; } = ProductionCobaltApiUrl;
 
 	[Property, Range( 100.0f, 10000.0f ), Group( "Spatial Audio" )]
 	public float HearingDistance { get; set; } = 1800.0f;
@@ -171,10 +170,7 @@ public sealed class MusicBox : Component, Component.IPressable
 		};
 
 		using var content = Http.CreateJsonContent( request );
-		var headers = new Dictionary<string, string>
-		{
-			["Accept"] = "application/json"
-		};
+		var headers = new Dictionary<string, string> { ["Accept"] = "application/json" };
 		var response = await Http.RequestJsonAsync<CobaltResponse>(
 			endpoint,
 			"POST",
@@ -239,10 +235,7 @@ public sealed class MusicBox : Component, Component.IPressable
 			? parsed.AbsolutePath
 			: parsed.AbsolutePath[..^currentExtension.Length];
 
-		var builder = new UriBuilder( parsed )
-		{
-			Path = $"{path}{extension}"
-		};
+		var builder = new UriBuilder( parsed ) { Path = $"{path}{extension}" };
 
 		return builder.Uri.AbsoluteUri;
 	}
