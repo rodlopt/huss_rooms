@@ -459,6 +459,11 @@ public partial class HussPlayer : Component, Component.INetworkSpawn
 		// Before IsDowned - this is the end of the life we're timing.
 		SubmitSurvivalTime();
 
+		// If we died while in a safe zone, clear that state so it doesn't persist.
+		// This runs on the host, which owns the authoritative safe state.
+		_safeZones = 0;
+		IsSafe = false;
+
 		// Ragdoll first: it copies its pose off the live renderer, and setting IsDowned takes
 		// that renderer away.
 		_recoverFromKnockdown = false;

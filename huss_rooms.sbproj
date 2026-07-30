@@ -29,7 +29,7 @@
       "VR": false,
       "Gamepad": false
     },
-    "LaunchMode": "Normal",
+    "LaunchMode": "Launcher",
     "DedicatedServerStartupScene": "scenes/hussrooms.scene"
   }
 }
