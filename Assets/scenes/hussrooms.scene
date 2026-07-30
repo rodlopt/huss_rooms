@@ -1890,7 +1890,7 @@
           "Flags": 0,
           "__version": 1,
           "EnableCollision": true,
-          "MapName": "thieves.lobby",
+          "MapName": "thieves.large_backrooms",
           "NoOrigin": false,
           "OnComponentDestroy": null,
           "OnComponentDisabled": null,
