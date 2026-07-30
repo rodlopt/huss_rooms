@@ -1,0 +1,362 @@
+@using Sandbox
+@using Sandbox.UI
+@using Hussrooms
+@namespace Hussrooms.UI
+@inherits PanelComponent
+
+<root class="@( IsOpen ? "open" : "closed" )">
+	<div class="scrim" @onclick="@Close"></div>
+
+	<div class="player-card">
+		<div class="topbar">
+			<div class="brand">
+				<i>graphic_eq</i>
+				<span>HUSS FM</span>
+			</div>
+			<div class="close-button" @onclick="@Close" tooltip="Close">
+				<i>close</i>
+			</div>
+		</div>
+
+		<div class="now-playing">
+			<div class="artwork @PlaybackClass">
+				<div class="record">
+					<i>music_note</i>
+				</div>
+			</div>
+
+			<div class="track-details">
+				<div class="eyebrow">@TargetStatus</div>
+				<div class="track-title">@TrackTitle</div>
+				<div class="source">@DisplayUrl</div>
+
+				@if ( !string.IsNullOrWhiteSpace( PanelError ) )
+				{
+					<div class="error">
+						<i>error</i>
+						<span>@PanelError</span>
+					</div>
+				}
+			</div>
+		</div>
+
+		<div class="source-entry">
+			<TextEntry @ref="UrlEntry"
+					   Value:bind="@Url"
+					   Placeholder="Paste a YouTube, audio, or radio URL"
+					   onsubmit="@SubmitUrl" />
+			<div class="load-button @LoadButtonClass" @onclick="@SubmitUrl">
+				<i>@( IsResolving ? "hourglass_top" : "play_arrow" )</i>
+				<span>@( IsResolving ? "RESOLVING" : "LOAD" )</span>
+			</div>
+		</div>
+
+		<div class="timeline @( CanSeek ? "" : "disabled" )">
+			<div class="time">@FormatTime( DisplayTime )</div>
+			<SliderControl class="seek-slider"
+						   Min="@(0.0f)"
+						   Max="@SeekMaximum"
+						   Step="@(0.1f)"
+						   Value="@DisplayTime"
+						   OnValueChanged="@OnSeekChanged"
+						   ShowValueTooltip="@false" />
+			<div class="time end">@( CanSeek ? FormatTime( Target.Duration ) : "LIVE" )</div>
+		</div>
+
+		<div class="controls">
+			<div class="control-button secondary @( CanSeek ? "" : "disabled" )"
+				 @onclick="@(() => Skip( -10.0f ))"
+				 tooltip="Back 10 seconds">
+				<i>replay_10</i>
+			</div>
+
+			<div class="control-button primary @( HasTrack ? "" : "disabled" )"
+				 @onclick="@TogglePaused"
+				 tooltip="@( Target?.IsPaused == true || Target?.IsFinished == true ? "Play" : "Pause" )">
+				<i>@PlayPauseIcon</i>
+			</div>
+
+			<div class="control-button secondary @( CanSeek ? "" : "disabled" )"
+				 @onclick="@(() => Skip( 10.0f ))"
+				 tooltip="Forward 10 seconds">
+				<i>forward_10</i>
+			</div>
+		</div>
+
+		<div class="utility-row">
+			<div class="volume">
+				<i>@VolumeIcon</i>
+				<SliderControl class="volume-slider"
+							   Min="@(0.0f)"
+							   Max="@(1.0f)"
+							   Step="@(0.01f)"
+							   Value="@VolumePreview"
+							   OnValueChanged="@OnVolumeChanged"
+							   ShowValueTooltip="@false" />
+				<span>@((int)(VolumePreview * 100.0f))%</span>
+			</div>
+
+			<div class="utility-button @( Target?.Repeat == true ? "active" : "" )"
+				 @onclick="@ToggleRepeat"
+				 tooltip="Repeat">
+				<i>repeat</i>
+			</div>
+
+			<div class="utility-button stop @( HasTrack ? "" : "disabled" )"
+				 @onclick="@Stop"
+				 tooltip="Stop">
+				<i>stop</i>
+			</div>
+		</div>
+
+		<div class="hint">
+			Direct audio and radio URLs play immediately. YouTube URLs are resolved through this player's Cobalt server.
+		</div>
+	</div>
+</root>
+
+@code
+{
+	public static MusicPlayerPanel Instance { get; private set; }
+	public bool IsOpen { get; private set; }
+
+	public MusicBox Target { get; private set; }
+
+	TextEntry UrlEntry { get; set; }
+	string Url = "";
+	float SeekPreview;
+	float VolumePreview = 0.65f;
+	bool SeekPending;
+	bool VolumePending;
+	bool WantsUrlFocus;
+	bool IsResolving;
+	string ResolverError = "";
+	TimeSince TimeSinceSeekChanged;
+	TimeSince TimeSinceVolumeChanged;
+
+	bool HasTrack => Target.IsValid() && Target.HasTrack;
+	bool CanSeek => HasTrack && Target.CanSeek;
+	float SeekMaximum => CanSeek ? Math.Max( Target.Duration, 0.1f ) : 1.0f;
+	float DisplayTime => SeekPending ? SeekPreview : (Target?.PlaybackTime ?? 0.0f);
+	string TargetStatus => IsResolving
+		? "RESOLVING YOUTUBE"
+		: Target.IsValid() ? Target.Status.ToUpperInvariant() : "PLAYER UNAVAILABLE";
+	string TrackTitle => HasTrack ? Target.TrackTitle : "Choose something to play";
+	string DisplayUrl => HasTrack ? Target.CurrentUrl : "Paste an audio, radio, or YouTube URL below";
+	string PlaybackClass => Target?.IsPlaying == true ? "playing" : HasTrack ? "paused" : "";
+	string PlayPauseIcon => Target?.HasStarted == false && HasTrack
+		? "hourglass_top"
+		: Target?.IsPaused == true || Target?.IsFinished == true ? "play_arrow" : "pause";
+	string LoadButtonClass => MusicBox.IsSupportedUrl( Url ) && !IsResolving ? "" : "disabled";
+	string PanelError => !string.IsNullOrWhiteSpace( ResolverError ) ? ResolverError : Target?.LastError ?? "";
+	string VolumeIcon => VolumePreview <= 0.001f ? "volume_off" : VolumePreview < 0.5f ? "volume_down" : "volume_up";
+
+	protected override void OnAwake()
+	{
+		Instance = this;
+	}
+
+	protected override void OnEnabled()
+	{
+		Instance = this;
+	}
+
+	public static bool Open( MusicBox target )
+	{
+		if ( !target.IsValid() || !Instance.IsValid() ) return false;
+
+		Instance.OpenFor( target );
+		return true;
+	}
+
+	void OpenFor( MusicBox target )
+	{
+		Target = target;
+		Url = target.CurrentUrl;
+		SeekPreview = target.PlaybackTime;
+		VolumePreview = target.Volume;
+		SeekPending = false;
+		VolumePending = false;
+		IsResolving = false;
+		ResolverError = "";
+		IsOpen = true;
+		WantsUrlFocus = true;
+		StateHasChanged();
+	}
+
+	public void Close()
+	{
+		if ( !IsOpen ) return;
+
+		IsOpen = false;
+		WantsUrlFocus = false;
+		UrlEntry?.Blur();
+		SetPlayerLock( false );
+		StateHasChanged();
+	}
+
+	protected override void OnUpdate()
+	{
+		SetPlayerLock( IsOpen );
+
+		if ( !IsOpen ) return;
+
+		if ( WantsUrlFocus && UrlEntry is not null )
+		{
+			UrlEntry.Focus();
+			WantsUrlFocus = false;
+		}
+
+		if ( !Target.IsValid() )
+		{
+			Close();
+			return;
+		}
+
+		if ( !VolumePending )
+			VolumePreview = Target.Volume;
+
+		if ( Input.EscapePressed )
+		{
+			Input.EscapePressed = false;
+			Close();
+			return;
+		}
+
+		if ( SeekPending && TimeSinceSeekChanged > 0.12f )
+		{
+			Target.RequestSeek( SeekPreview );
+			SeekPending = false;
+		}
+
+		if ( VolumePending && TimeSinceVolumeChanged > 0.08f )
+		{
+			Target.RequestSetVolume( VolumePreview );
+			VolumePending = false;
+		}
+	}
+
+	async void SubmitUrl()
+	{
+		if ( IsResolving || !Target.IsValid() || !MusicBox.IsSupportedUrl( Url ) ) return;
+
+		var target = Target;
+		var sourceUrl = Url.Trim();
+
+		IsResolving = true;
+		ResolverError = "";
+		UrlEntry?.Blur();
+		StateHasChanged();
+
+		try
+		{
+			var playbackUrl = await target.ResolvePlaybackUrlAsync( sourceUrl );
+
+			if ( target.IsValid() && Target == target )
+				target.RequestPlayUrl( playbackUrl, sourceUrl );
+		}
+		catch ( Exception exception )
+		{
+			ResolverError = $"Could not load this URL: {exception.Message}";
+		}
+		finally
+		{
+			IsResolving = false;
+			StateHasChanged();
+		}
+	}
+
+	void TogglePaused()
+	{
+		if ( HasTrack )
+			Target.RequestTogglePaused();
+	}
+
+	void Skip( float seconds )
+	{
+		if ( !CanSeek ) return;
+
+		Target.RequestSeek( (Target.PlaybackTime + seconds).Clamp( 0.0f, Target.Duration ) );
+	}
+
+	void OnSeekChanged( float value )
+	{
+		if ( !CanSeek ) return;
+
+		SeekPreview = value.Clamp( 0.0f, Target.Duration );
+		SeekPending = true;
+		TimeSinceSeekChanged = 0;
+		StateHasChanged();
+	}
+
+	void OnVolumeChanged( float value )
+	{
+		VolumePreview = value.Clamp( 0.0f, 1.0f );
+		VolumePending = true;
+		TimeSinceVolumeChanged = 0;
+		StateHasChanged();
+	}
+
+	void ToggleRepeat()
+	{
+		if ( Target.IsValid() )
+			Target.RequestSetRepeat( !Target.Repeat );
+	}
+
+	void Stop()
+	{
+		if ( HasTrack )
+			Target.RequestStop();
+	}
+
+	void SetPlayerLock( bool locked )
+	{
+		if ( HussPlayer.Local is HussPlayer player )
+			player.SetInputLock( this, locked );
+	}
+
+	static string FormatTime( float seconds )
+	{
+		if ( !float.IsFinite( seconds ) || seconds < 0.0f ) return "--:--";
+
+		var totalSeconds = (int)MathF.Floor( seconds );
+		var minutes = totalSeconds / 60;
+		var remainder = totalSeconds % 60;
+
+		return $"{minutes}:{remainder:00}";
+	}
+
+	protected override int BuildHash() => HashCode.Combine(
+		IsOpen,
+		Target.IsValid(),
+		Target?.CurrentUrl,
+		Target?.TrackTitle,
+		Target?.Status,
+		(int)(DisplayTime * 4.0f),
+		HashCode.Combine(
+			Target?.IsPaused,
+			Target?.HasStarted,
+			Target?.IsFinished,
+			Target?.Repeat,
+			(int)(VolumePreview * 100.0f),
+			Url,
+			SeekPending,
+			HashCode.Combine( IsResolving, ResolverError ) ) );
+
+	protected override void OnDisabled()
+	{
+		SetPlayerLock( false );
+		IsOpen = false;
+
+		if ( Instance == this )
+			Instance = null;
+	}
+
+	protected override void OnDestroy()
+	{
+		SetPlayerLock( false );
+
+		if ( Instance == this )
+			Instance = null;
+	}
+}

@@ -1,0 +1,364 @@
+MusicPlayerPanel {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  align-items: center;
+  justify-content: center;
+  font-family: Londrina Solid, sans-serif;
+  letter-spacing: 1px;
+  color: #f7f9ff;
+  transition: opacity 0.16s ease-out;
+
+  &.closed {
+    opacity: 0;
+    pointer-events: none;
+  }
+
+  &.open {
+    opacity: 1;
+    pointer-events: all;
+  }
+
+  .scrim {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: rgba(#05070d, 0.72);
+    backdrop-filter: blur(14px);
+  }
+
+  .player-card {
+    position: relative;
+    width: 760px;
+    padding: 24px 28px 22px;
+    flex-direction: column;
+    background-color: rgba(#111624, 0.97);
+  }
+
+  i {
+    font-family: Material Icons;
+  }
+
+  .topbar {
+    height: 34px;
+    align-items: center;
+    justify-content: space-between;
+
+    .brand {
+      align-items: center;
+      color: #8aabff;
+      font-size: 20px;
+      font-weight: 800;
+
+      i {
+        margin-right: 10px;
+        font-size: 22px;
+      }
+    }
+  }
+
+  .close-button,
+  .control-button,
+  .utility-button,
+  .load-button {
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: background-color 0.12s ease-out, transform 0.12s ease-out, color 0.12s ease-out;
+
+    &:hover {
+      transform: scale(1.06);
+    }
+
+    &:active {
+      transform: scale(0.95);
+    }
+
+    &.disabled {
+      opacity: 0.3;
+      pointer-events: none;
+    }
+  }
+
+  .close-button {
+    width: 34px;
+    height: 34px;
+    border-radius: 17px;
+    color: rgba(white, 0.55);
+    background-color: rgba(white, 0.06);
+
+    &:hover {
+      color: white;
+      background-color: rgba(white, 0.13);
+    }
+  }
+
+  .now-playing {
+    margin-top: 18px;
+    margin-bottom: 22px;
+    align-items: center;
+  }
+
+  .artwork {
+    width: 138px;
+    height: 138px;
+    flex-shrink: 0;
+    align-items: center;
+    justify-content: center;
+    border-radius: 22px;
+
+    .record {
+      width: 92px;
+      height: 92px;
+      align-items: center;
+      justify-content: center;
+      border-radius: 50%;
+      background: radial-gradient(#8aabff 0%, #8aabff 10%, #101522 11%, #101522 28%, #26314e 29%, #0a0d15 67%, #232b40 68%, #090b11 100%);
+
+      i {
+        font-size: 22px;
+        color: white;
+      }
+    }
+
+    &.playing {
+      background: linear-gradient(145deg, #4f6fcb, #202944);
+    }
+
+    &.paused {
+      opacity: 0.68;
+    }
+  }
+
+  .track-details {
+    min-width: 0;
+    margin-left: 26px;
+    flex-grow: 1;
+    flex-direction: column;
+
+    .eyebrow {
+      margin-bottom: 8px;
+      color: #7ce3a1;
+      font-size: 11px;
+      font-weight: 800;
+      letter-spacing: 3px;
+    }
+
+    .track-title {
+      font-size: 32px;
+      font-weight: 700;
+      white-space: nowrap;
+      text-overflow: ellipsis;
+      overflow: hidden;
+    }
+
+    .source {
+      margin-top: 6px;
+      color: rgba(white, 0.42);
+      font-size: 12px;
+      white-space: nowrap;
+      text-overflow: ellipsis;
+      overflow: hidden;
+    }
+
+    .error {
+      margin-top: 12px;
+      padding: 7px 10px;
+      align-items: center;
+      border-radius: 6px;
+      color: #ff8799;
+      background-color: rgba(#ff5470, 0.1);
+      font-size: 11px;
+
+      i {
+        margin-right: 7px;
+      }
+    }
+  }
+
+  .source-entry {
+    height: 48px;
+    align-items: stretch;
+
+    TextEntry {
+      flex-grow: 1;
+      padding: 0 16px;
+      border-radius: 9px 0 0 9px;
+      background-color: rgba(black, 0.28);
+      border: 1px solid rgba(white, 0.1);
+      font-size: 13px;
+
+      &:focus {
+        border-color: rgba(#8aabff, 0.7);
+      }
+    }
+
+    .load-button {
+      width: 110px;
+      border-radius: 0 9px 9px 0;
+      background-color: #6689ee;
+      font-size: 12px;
+      font-weight: 800;
+      letter-spacing: 1px;
+
+      i {
+        margin-right: 5px;
+        font-size: 20px;
+      }
+
+      &:hover {
+        background-color: #7b9aff;
+      }
+    }
+  }
+
+  .timeline {
+    margin-top: 22px;
+    align-items: center;
+
+    &.disabled {
+      opacity: 0.45;
+    }
+
+    .time {
+      width: 48px;
+      color: rgba(white, 0.58);
+      font-size: 11px;
+
+      &.end {
+        text-align: right;
+      }
+    }
+  }
+
+  SliderControl {
+    flex-grow: 1;
+
+    .inner {
+      width: 100%;
+      padding: 10px 0;
+    }
+
+    .track {
+      height: 5px;
+      border-radius: 3px;
+      background-color: rgba(white, 0.12);
+    }
+
+    .track-active {
+      height: 100%;
+      border-radius: 3px;
+      background-color: #7294f3;
+    }
+
+    .thumb {
+      top: 50%;
+      width: 15px;
+      height: 15px;
+      margin-top: -7px;
+      margin-left: -7px;
+      border-radius: 50%;
+      background-color: white;
+      box-shadow: 0 2px 8px rgba(black, 0.45);
+    }
+  }
+
+  .controls {
+    height: 78px;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .control-button {
+    margin: 0 12px;
+    border-radius: 50%;
+
+    &.secondary {
+      width: 46px;
+      height: 46px;
+      color: rgba(white, 0.75);
+      background-color: rgba(white, 0.07);
+
+      i {
+        font-size: 25px;
+      }
+
+      &:hover {
+        color: white;
+        background-color: rgba(white, 0.14);
+      }
+    }
+
+    &.primary {
+      width: 64px;
+      height: 64px;
+      color: #101522;
+      background-color: white;
+      box-shadow: 0 8px 24px rgba(black, 0.32);
+
+      i {
+        font-size: 34px;
+      }
+    }
+  }
+
+  .utility-row {
+    height: 46px;
+    align-items: center;
+    border-top: 1px solid rgba(white, 0.07);
+    padding-top: 14px;
+
+    .volume {
+      flex-grow: 1;
+      align-items: center;
+
+      > i {
+        width: 28px;
+        color: rgba(white, 0.58);
+        font-size: 20px;
+      }
+
+      .volume-slider {
+        max-width: 180px;
+      }
+
+      span {
+        width: 42px;
+        margin-left: 10px;
+        color: rgba(white, 0.45);
+        font-size: 11px;
+      }
+    }
+  }
+
+  .utility-button {
+    width: 38px;
+    height: 38px;
+    margin-left: 8px;
+    border-radius: 8px;
+    color: rgba(white, 0.5);
+    background-color: rgba(white, 0.05);
+
+    &:hover,
+    &.active {
+      color: #8eabff;
+      background-color: rgba(#7294f3, 0.16);
+    }
+
+    &.stop:hover {
+      color: #ff8799;
+      background-color: rgba(#ff5470, 0.14);
+    }
+  }
+
+  .hint {
+    margin-top: 17px;
+    justify-content: center;
+    color: rgba(white, 0.3);
+    font-size: 10px;
+  }
+}

@@ -569,6 +569,18 @@
           "OnComponentUpdate": null
         },
         {
+          "__type": "Hussrooms.UI.MusicPlayerPanel",
+          "__guid": "c4bb6f3f-44d2-47fb-8e87-681ce86872c1",
+          "__enabled": true,
+          "Flags": 0,
+          "OnComponentDestroy": null,
+          "OnComponentDisabled": null,
+          "OnComponentEnabled": null,
+          "OnComponentFixedUpdate": null,
+          "OnComponentStart": null,
+          "OnComponentUpdate": null
+        },
+        {
           "__type": "Sandbox.PropMenu",
           "__guid": "68e0acdf-e755-4f86-baa6-e9e32379dbd2",
           "__enabled": true,
@@ -641,6 +653,13 @@
               "Prop": {
                 "_type": "gameobject",
                 "prefab": "prefabs/bot.prefab"
+              }
+            },
+            {
+              "Name": "Boombox",
+              "Prop": {
+                "_type": "gameobject",
+                "prefab": "prefabs/props/admin/boombox.prefab"
               }
             }
           ]

@@ -12,7 +12,7 @@
   "IsStandaloneOnly": false,
   "Metadata": {
     "MaxPlayers": 64,
-    "MinPlayers": 1,
+    "MinPlayers": 16,
     "TickRate": 50,
     "GameNetworkType": "Multiplayer",
     "MapSelect": "Unrestricted",

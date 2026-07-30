@@ -230,10 +230,21 @@ public partial class HussPlayer : Component, Component.INetworkSpawn
 	}
 
 	/// <summary>
-	/// Set by the main menu while it's up. Kept separate from <see cref="IsDowned"/> so the
-	/// two can't clobber each other's idea of whether the controls should be live.
+	/// True while one or more local UI panels have taken control of the mouse and keyboard.
 	/// </summary>
-	public bool InputLocked { get; set; }
+	public bool InputLocked => _inputLocks.Count > 0;
+
+	readonly HashSet<object> _inputLocks = new();
+
+	public void SetInputLock( object owner, bool locked )
+	{
+		if ( owner is null ) return;
+
+		if ( locked )
+			_inputLocks.Add( owner );
+		else
+			_inputLocks.Remove( owner );
+	}
 
 	protected override void OnUpdate()
 	{

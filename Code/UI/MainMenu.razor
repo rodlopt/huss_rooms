@@ -53,14 +53,14 @@
 
 		// The menu is the only thing that should be reading input while it's up.
 		if ( player.IsValid() )
-			player.InputLocked = IsOpen;
+			player.SetInputLock( this, IsOpen );
 	}
 
 	protected override void OnDisabled()
 	{
 		// Don't leave the player frozen if this panel goes away.
 		if ( HussPlayer.Local is HussPlayer player )
-			player.InputLocked = false;
+			player.SetInputLock( this, false );
 	}
 
 	void PlayAsRunner() => Play( HussTeam.Runner );
