@@ -631,7 +631,10 @@
             },
             {
               "Name": "Mattress",
-              "Prop": null
+              "Prop": {
+                "_type": "gameobject",
+                "prefab": "prefabs/props/mattress.prefab"
+              }
             },
             {
               "Name": "Captain Clark",
