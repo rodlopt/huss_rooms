@@ -635,13 +635,6 @@
               }
             },
             {
-              "Name": "Bed frame",
-              "Prop": {
-                "_type": "gameobject",
-                "prefab": "prefabs/props/bed_frame_01.prefab"
-              }
-            },
-            {
               "Name": "Mattress",
               "Prop": {
                 "_type": "gameobject",
