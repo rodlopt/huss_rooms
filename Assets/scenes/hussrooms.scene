@@ -616,6 +616,27 @@
               }
             },
             {
+              "Name": "Pallet",
+              "Prop": {
+                "_type": "gameobject",
+                "prefab": "prefabs/props/pallet.prefab"
+              }
+            },
+            {
+              "Name": "Bed frame",
+              "Prop": {
+                "_type": "gameobject",
+                "prefab": "prefabs/props/bed_frame_01.prefab"
+              }
+            },
+            {
+              "Name": "Mattress",
+              "Prop": {
+                "_type": "gameobject",
+                "prefab": "prefabs/props/mattress.prefab"
+              }
+            },
+            {
               "Name": "Captain Clark",
               "Prop": {
                 "_type": "gameobject",
