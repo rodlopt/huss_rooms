@@ -566,6 +566,13 @@ public partial class HussPlayer : Component, Component.INetworkSpawn
 
 	Transform FindSpawnPoint()
 	{
+		if ( IsRunner )
+		{
+			var runnerSpawnPoints = Scene.GetAllComponents<RunnerSpawnPoint>().ToArray();
+			if ( runnerSpawnPoints.Length > 0 )
+				return Random.Shared.FromArray( runnerSpawnPoints ).WorldTransform;
+		}
+
 		var spawnPoints = Scene.GetAllComponents<SpawnPoint>().ToArray();
 
 		if ( spawnPoints.Length > 0 )
