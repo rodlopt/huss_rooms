@@ -58,8 +58,13 @@ public partial class HussPlayer : Component, Component.INetworkSpawn
 	void Component.INetworkSpawn.OnNetworkSpawn( Connection owner )
 	{
 		if ( Networking.IsHost )
+		{
 			DisplayName = owner?.DisplayName;
+			if ( owner is not null && (owner == Connection.Host || owner.IsHost) )
+				CanSpawnBots = true;
+		}
 	}
+
 
 	/// <summary>
 	/// True when this pawn is driven by <see cref="ChaserBot"/> rather than a person.

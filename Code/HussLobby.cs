@@ -31,6 +31,11 @@ public sealed class HussLobby : Component, Component.INetworkListener
 
 	static HussLobby _current;
 
+	/// <summary>
+	/// True when this machine is the host for the current session.
+	/// </summary>
+	public static bool LocalIsHost => Networking.IsHost;
+
 	[Property, Group( "Bots" )] public GameObject BotPrefab { get; set; }
 
 	/// <summary>Whether bots are allowed at all. Host can turn this off to lock it down.</summary>

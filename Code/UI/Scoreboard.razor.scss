@@ -68,8 +68,9 @@ Scoreboard {
         background-color: rgba(white, 0.08);
         color: rgba(white, 0.6);
         transition: background-color 0.1s ease-out;
-
+        
         &:hover {
+          cursor: pointer;
           background-color: rgba(white, 0.18);
           color: white;
         }
@@ -85,6 +86,7 @@ Scoreboard {
         color: #ff5470;
 
         &:hover {
+          cursor: pointer;
           background-color: rgba(#ff5470, 0.32);
           color: white;
         }
@@ -185,6 +187,7 @@ Scoreboard {
     transition: background-color 0.1s ease-out;
 
     &:hover {
+      cursor: pointer;
       background-color: rgba(white, 0.18);
       color: white;
     }
