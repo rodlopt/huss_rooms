@@ -62,6 +62,21 @@ public sealed class HussCamera : Component, ICameraModifier
 	float _wantedDistance;
 	float _distance;
 	float _shoulder;
+	/// <summary>
+	/// Bone the death camera rides. The chest is the calm bit - the head whips around far too
+	/// much to watch. Falls back to the ragdoll's origin if the bone isn't there.
+	/// </summary>
+	[Property, Group( "Death" )] public string DeathFollowBone { get; set; } = "Spine1";
+
+	/// <summary>How quickly the camera chases the body. Lower is floatier.</summary>
+	[Property, Group( "Death" )] public float DeathFollowSmoothing { get; set; } = 10.0f;
+
+	/// <summary>Minimum pull-back while dead, so first person doesn't leave us inside the corpse.</summary>
+	[Property, Group( "Death" )] public float DeathDistance { get; set; } = 170.0f;
+
+	Vector3 _deathPivot;
+	bool _hasDeathPivot;
+
 	Vector3 _lastViewPosition;
 	Rotation _lastViewRotation;
 	float _lastViewFieldOfView;
@@ -142,11 +157,20 @@ public sealed class HussCamera : Component, ICameraModifier
 		if ( !cam.RenderExcludeTags.Contains( "viewer" ) )
 			cam.RenderExcludeTags.Add( "viewer" );
 
-		if ( _player.IsValid() && _player.IsDowned && _hasLastView )
+		if ( _player.IsValid() && _player.IsDowned )
 		{
-			ApplyView( cam, ref view, _lastViewPosition, _lastViewRotation, _lastViewFieldOfView );
-			return;
+			// Follow the body if there is one. The frozen last view is only a fallback for the
+			// moment between dying and the ragdoll existing.
+			if ( TryFollowRagdoll( cam, ref view ) ) return;
+
+			if ( _hasLastView )
+			{
+				ApplyView( cam, ref view, _lastViewPosition, _lastViewRotation, _lastViewFieldOfView );
+				return;
+			}
 		}
+
+		_hasDeathPivot = false;
 
 		var rotation = Controller.EyeAngles.ToRotation();
 		var pivot = Controller.EyeTransform.Position
@@ -176,6 +200,74 @@ public sealed class HussCamera : Component, ICameraModifier
 		_lastViewRotation = rotation;
 		_lastViewFieldOfView = fieldOfView;
 		_hasLastView = true;
+	}
+
+	/// <summary>
+	/// Ride the corpse instead of hanging where we died.
+	/// </summary>
+	bool TryFollowRagdoll( CameraComponent cam, ref CameraView view )
+	{
+		var ragdoll = _player.Ragdoll;
+		if ( !ragdoll.IsValid() ) return false;
+
+		var target = FollowPoint( ragdoll );
+
+		// Ease on rather than cutting, and damp out the tumble - a chest bone bouncing down a
+		// staircase is not something you want welded to the camera.
+		if ( !_hasDeathPivot )
+		{
+			_deathPivot = target;
+			_hasDeathPivot = true;
+		}
+		else
+		{
+			_deathPivot = _deathPivot.LerpTo( target, (Time.Delta * DeathFollowSmoothing).Clamp( 0, 1 ) );
+		}
+
+		var rotation = Controller.EyeAngles.ToRotation();
+
+		// Pull back at least DeathDistance, so dying in first person doesn't leave us inside
+		// our own corpse.
+		var distance = MathF.Max( _distance, DeathDistance );
+		var wanted = _deathPivot - rotation.Forward * distance;
+
+		var tr = Scene.Trace.FromTo( _deathPivot, wanted )
+			.IgnoreGameObjectHierarchy( GameObject.Root )
+			.IgnoreGameObjectHierarchy( ragdoll )
+			.Radius( CollisionRadius )
+			.WithoutTags( CollisionIgnore )
+			.Run();
+
+		ApplyView( cam, ref view, tr.EndPosition, rotation, Preferences.FieldOfView );
+		return true;
+	}
+
+	/// <summary>
+	/// Read the bone off the physics body rather than the animation pose - a ragdoll is driven
+	/// by ModelPhysics, so the body is where the limb actually is.
+	/// </summary>
+	Vector3 FollowPoint( GameObject ragdoll )
+	{
+		var renderer = ragdoll.Components.Get<SkinnedModelRenderer>( true );
+		var physics = ragdoll.Components.Get<ModelPhysics>( true );
+
+		if ( renderer.IsValid() && physics.IsValid() && renderer.Model is not null &&
+			 !string.IsNullOrWhiteSpace( DeathFollowBone ) )
+		{
+			var bone = renderer.Model.Bones.GetBone( DeathFollowBone );
+
+			if ( bone is not null )
+			{
+				foreach ( var body in physics.Bodies )
+				{
+					if ( body.Bone != bone.Index || !body.Component.IsValid() ) continue;
+
+					return body.Component.WorldPosition;
+				}
+			}
+		}
+
+		return ragdoll.WorldPosition;
 	}
 
 	static void ApplyView(

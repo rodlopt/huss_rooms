@@ -180,7 +180,21 @@ public partial class HussPlayer : Component, Component.INetworkSpawn
 	[Property, Group( "Health" )]
 	public float RagdollSpin { get; set; } = 220.0f;
 
+	/// <summary>How hard the body is thrown away from whoever killed it.</summary>
+	[Property, Group( "Health" )]
+	public float DeathLaunchForce { get; set; } = 420.0f;
+
+	/// <summary>Upward part of that throw, so it arcs instead of skidding along the floor.</summary>
+	[Property, Group( "Health" )]
+	public float DeathLaunchLift { get; set; } = 180.0f;
+
 	GameObject _ragdoll;
+
+	/// <summary>
+	/// Our corpse, while we have one. Local and cosmetic - <see cref="HussCamera"/> follows it
+	/// so the death view doesn't sit staring at the spot where the body used to be.
+	/// </summary>
+	public GameObject Ragdoll => _ragdoll;
 
 	[Sync( SyncFlags.FromHost )] public int Hits { get; set; }
 
@@ -256,9 +270,10 @@ public partial class HussPlayer : Component, Component.INetworkSpawn
 		// get stuck on if they overlap.
 		if ( Controller.IsValid() )
 		{
-			var controlsEnabled = !IsDowned && !InputLocked;
-			Controller.UseInputControls = controlsEnabled;
-			Controller.UseLookControls = controlsEnabled;
+			// No moving while you're down, but you can still look - that's what lets the
+			// death camera orbit the body. Only the menu takes the mouse away entirely.
+			Controller.UseInputControls = !IsDowned && !InputLocked;
+			Controller.UseLookControls = !InputLocked;
 		}
 
 		UpdatePropInteraction();
@@ -465,12 +480,12 @@ public partial class HussPlayer : Component, Component.INetworkSpawn
 		Hits++;
 
 		if ( Hits >= HitsToKill )
-			GoDown();
+			GoDown( attacker );
 
 		return true;
 	}
 
-	void GoDown()
+	void GoDown( HussPlayer attacker = null )
 	{
 		// Before IsDowned - this is the end of the life we're timing.
 		SubmitSurvivalTime();
@@ -483,7 +498,19 @@ public partial class HussPlayer : Component, Component.INetworkSpawn
 		// Ragdoll first: it copies its pose off the live renderer, and setting IsDowned takes
 		// that renderer away.
 		_recoverFromKnockdown = false;
-		SpawnRagdoll( Controller.IsValid() ? Controller.Velocity : Vector3.Zero );
+		// Thrown away from whoever hit us, with some lift, so the body reads as having been
+		// struck rather than just dropping where it stood.
+		var launch = Vector3.Zero;
+
+		if ( attacker.IsValid() )
+		{
+			var away = (WorldPosition - attacker.WorldPosition).WithZ( 0 );
+			away = away.IsNearZeroLength ? WorldRotation.Forward : away.Normal;
+
+			launch = away * DeathLaunchForce + Vector3.Up * DeathLaunchLift;
+		}
+
+		SpawnRagdoll( Controller.IsValid() ? Controller.Velocity : Vector3.Zero, launch );
 
 		// Pass the spot we died rather than letting each machine read it later - by the time
 		// the message lands the pawn may already have been parked or moved.
@@ -515,7 +542,7 @@ public partial class HussPlayer : Component, Component.INetworkSpawn
 	/// a whole jointed physics body. They only need to look roughly the same, not match exactly.
 	/// </summary>
 	[Rpc.Broadcast]
-	void SpawnRagdoll( Vector3 velocity )
+	void SpawnRagdoll( Vector3 velocity, Vector3 launch )
 	{
 		ClearRagdoll();
 
@@ -532,7 +559,7 @@ public partial class HussPlayer : Component, Component.INetworkSpawn
 
 		foreach ( var body in _ragdoll.GetComponentsInChildren<Rigidbody>() )
 		{
-			body.Velocity = velocity;
+			body.Velocity = velocity + launch;
 			body.AngularVelocity = Vector3.Random * RagdollSpin;
 		}
 	}
@@ -616,10 +643,8 @@ public partial class HussPlayer : Component, Component.INetworkSpawn
 	{
 		if ( !Controller.IsValid() ) return;
 
-		// Control flags are driven from OnUpdate - see InputLocked. Disable look
-		// immediately on the owner so the downed camera cannot receive one last input tick.
-		if ( !IsProxy && !IsBot )
-			Controller.UseLookControls = !after && !InputLocked;
+		// Control flags are driven from OnUpdate - see InputLocked. Look deliberately stays on
+		// while down so the death camera can be orbited around the body.
 
 		// WishVelocity is owner authoritative - proxies must not write to it.
 		if ( after && !IsProxy )

@@ -57,7 +57,7 @@ public partial class HussPlayer : Component.ICollisionListener
 			CreditPropTrip( prop );
 
 		_recoverFromKnockdown = true;
-		SpawnRagdoll( ragdollVelocity );
+		SpawnRagdoll( ragdollVelocity, Vector3.Zero );
 		_respawnAt = KnockdownRecoveryTime;
 		IsDowned = true;
 	}
